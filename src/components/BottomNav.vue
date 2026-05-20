@@ -1,32 +1,45 @@
 <script setup>
-import { useRoute } from 'vue-router'
-defineEmits(['fab-click'])
+import { ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 const route = useRoute()
+const router = useRouter()
+const unreadCount = ref(3)
+
 const isActive = (path) => route.path === path
+
+const items = [
+  { path: '/home', label: '首页', icon: 'home-smile-linear', activeIcon: 'home-smile-bold' },
+  { path: '/social', label: '发现', icon: 'users-group-rounded-linear', activeIcon: 'users-group-rounded-bold' },
+  { path: '/notifications', label: '通知', icon: 'bell-linear', activeIcon: 'bell-bold', badge: true },
+  { path: '/mall', label: '商城', icon: 'bag-heart-linear', activeIcon: 'bag-heart-bold' },
+]
+
+const navigate = (item) => {
+  if (route.path !== item.path) router.push(item.path)
+}
 </script>
 
 <template>
-  <nav class="absolute bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-lg border-t border-[#FFF5F7] px-6 flex justify-between items-center rounded-t-[40px] z-10">
-    <router-link to="/home" class="flex flex-col items-center gap-1" :class="isActive('/home') ? 'text-[#FF85A2]' : 'text-gray-300'">
-      <iconify-icon class="text-2xl" :icon="isActive('/home') ? 'solar:home-smile-bold' : 'solar:home-smile-linear'"></iconify-icon>
-      <span class="text-[10px]" :class="isActive('/home') ? 'font-bold' : ''">首页</span>
-    </router-link>
-    <router-link to="/social" class="flex flex-col items-center gap-1" :class="isActive('/social') ? 'text-[#A7C7E7]' : 'text-gray-300'">
-      <iconify-icon class="text-2xl" :icon="isActive('/social') ? 'solar:users-group-rounded-bold' : 'solar:users-group-rounded-linear'"></iconify-icon>
-      <span class="text-[10px]" :class="isActive('/social') ? 'font-bold' : ''">发现</span>
-    </router-link>
-    <div class="relative -top-6">
-      <button class="w-14 h-14 bg-gradient-to-br from-[#FFD1DC] to-[#FF85A2] rounded-full flex items-center justify-center shadow-lg shadow-pink-200 border-4 border-white" @click="$emit('fab-click')">
-        <iconify-icon class="text-white text-2xl" icon="solar:add-bold"></iconify-icon>
-      </button>
+  <nav class="absolute bottom-0 left-0 right-0 h-[72px] bg-white/80 backdrop-blur-lg border-t border-[#F0F0F0] flex items-center justify-around z-10">
+    <div
+      v-for="item in items"
+      :key="item.path"
+      class="flex flex-col items-center gap-0.5 w-12 cursor-pointer"
+      :class="isActive(item.path) ? 'text-[#FF85A2]' : 'text-gray-300'"
+      @click="navigate(item)"
+    >
+      <div class="relative">
+        <iconify-icon
+          class="text-2xl"
+          :icon="`solar:${isActive(item.path) ? item.activeIcon : item.icon}`"
+        ></iconify-icon>
+        <span
+          v-if="item.badge && unreadCount > 0"
+          class="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center bg-[#FF3B30] text-white text-[9px] font-bold rounded-full leading-none"
+        >{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+      </div>
+      <span class="text-[9px]" :class="isActive(item.path) ? 'font-bold' : ''">{{ item.label }}</span>
     </div>
-    <router-link to="/mall" class="flex flex-col items-center gap-1" :class="isActive('/mall') ? 'text-[#FF85A2]' : 'text-gray-300'">
-      <iconify-icon class="text-2xl" :icon="isActive('/mall') ? 'solar:bag-heart-bold' : 'solar:bag-heart-linear'"></iconify-icon>
-      <span class="text-[10px]" :class="isActive('/mall') ? 'font-bold' : ''">商城</span>
-    </router-link>
-    <router-link to="/profile" class="flex flex-col items-center gap-1" :class="isActive('/profile') ? 'text-[#FF85A2]' : 'text-gray-300'">
-      <iconify-icon class="text-2xl" :icon="isActive('/profile') ? 'solar:user-circle-bold' : 'solar:user-circle-linear'"></iconify-icon>
-      <span class="text-[10px]" :class="isActive('/profile') ? 'font-bold' : ''">我的</span>
-    </router-link>
   </nav>
 </template>

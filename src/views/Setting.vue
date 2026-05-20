@@ -10,7 +10,7 @@ const router = useRouter()
     <div class="w-[375px] h-[812px] bg-[#FFFDF9] rounded-[40px] shadow-2xl overflow-hidden relative border-[8px] border-white flex flex-col pt-10">
 
       <header class="px-6 pt-6 pb-4 flex items-center gap-4">
-        <button @click="router.push('/profile')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-100">
+        <button @click="router.push('/home')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-100">
           <iconify-icon icon="solar:arrow-left-linear"></iconify-icon>
         </button>
         <h1 class="text-xl font-bold text-[#5D4037]">账号安全</h1>

@@ -23,19 +23,27 @@ body {
 }
 
 .overlay {
-  @apply fixed inset-0 bg-black bg-opacity-40 z-50 transition-opacity;
-  opacity: 0;
-  pointer-events: none;
-}
-.overlay.show {
-  opacity: 1;
-  pointer-events: auto;
+  @apply fixed inset-0 bg-black bg-opacity-40;
 }
 
+.slide-right-enter-active, .slide-right-leave-active { transition: transform 0.3s ease; }
+.slide-right-enter-from, .slide-right-leave-to { transform: translateX(-100%); }
+
 .sheet {
-  @apply absolute bottom-0 left-0 right-0 bg-[#FFFDF9] rounded-t-[32px] p-6 transition-transform duration-300 z-50;
-  transform: translateY(100%);
+  @apply absolute bottom-0 left-0 right-0 bg-[#FFFDF9] rounded-[32px] p-6 z-50;
 }
-.sheet.show {
-  transform: translateY(0);
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+.slide-up-enter-active, .slide-up-leave-active { transition: transform 0.3s ease; }
+.slide-up-enter-from, .slide-up-leave-to { transform: translateY(100%); }
+
+.scale-enter-active, .scale-leave-active { transition: all 0.25s ease; }
+.scale-enter-from, .scale-leave-to { opacity: 0; transform: scale(0.9); }
+
+.mascot-float { animation: floating 3s ease-in-out infinite; }
+@keyframes floating {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }

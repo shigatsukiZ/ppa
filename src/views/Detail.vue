@@ -268,7 +268,7 @@ const goToOrder = () => {
 
       <div class="absolute bottom-0 left-0 right-0 z-20">
         <nav class="bg-white/80 backdrop-blur-lg border-t border-[#FFF5F7] px-4 py-2 flex items-center gap-3">
-          <button class="flex flex-col items-center gap-0.5 text-gray-400 w-12" @click="router.push('/profile')">
+          <button class="flex flex-col items-center gap-0.5 text-gray-400 w-12" @click="router.push('/home')">
             <iconify-icon class="text-xl" icon="solar:user-bold"></iconify-icon>
             <span class="text-[8px]">个人</span>
           </button>

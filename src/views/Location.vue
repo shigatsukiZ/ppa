@@ -6,25 +6,32 @@ const router = useRouter()
 const mapContainer = ref(null)
 const loading = ref(true)
 const userAddr = ref('获取中...')
-const destAddr = ref('西溪湿地南门')
+const destAddr = ref('成都锦城公园')
 const distText = ref('')
 const loaded = ref(false)
 
+const isVoiceMode = ref(true)
+const isRecording = ref(false)
+const dragZoneVisible = ref(false)
+const inDragZone = ref(false)
+const chatInput = ref('')
+const messages = ref([])
+const showEmojiPicker = ref(false)
 let map = null
+let startY = 0
+let dragZoneTopY = 0
+let dragZoneBottomY = 0
+let msgIdCounter = 0
 
-const loadBaiduMap = () => {
-  return new Promise((resolve) => {
-    if (window.BMap) { resolve(window.BMap); return }
-    const key = 'YOUR_BAIDU_MAP_KEY'
-    window.__onBMapLoaded = () => {
-      resolve(window.BMap)
-      delete window.__onBMapLoaded
-    }
-    const script = document.createElement('script')
-    script.src = `https://api.map.baidu.com/api?v=3.0&ak=${key}&callback=__onBMapLoaded`
-    script.async = true
-    document.head.appendChild(script)
-  })
+const emojis = [...'😀😁😂🤣😃😄😅😆😉😊😋😎😍🥰😘😗😙😚🙂🤗🤩🤔🤨😐😑😶😏😒🙄😬🤥😌😔😪🤤😴😷🤒🤕🤢🤧🥵🥶🥴😵🤯🤠🥳🥺😢😭😤😡🤬😈👿💀☠💩🤡👹👺👻👽👾🤖💋💘❤🧡💛💚💙💜🖤🤍🤎💔❣💕💞💓💗💖💝💟👍👎👊✊🤛🤜🤚👋🤟✌🤞🤟👌✋🤏👆👇👉👈🙌🙏🤝💪🦵🦶👂👃🧠🦷👀👅👄💄💋']
+
+const insertEmoji = (e) => {
+  chatInput.value += e
+  chatInput.value = chatInput.value
+}
+
+const toggleEmojiPicker = () => {
+  showEmojiPicker.value = !showEmojiPicker.value
 }
 
 const calcDist = (p1, p2) => {
@@ -38,67 +45,97 @@ const calcDist = (p1, p2) => {
 
 const fmtDist = (m) => m < 1000 ? Math.round(m) + 'm' : (m / 1000).toFixed(1) + 'km'
 
+const sendMessage = () => {
+  const text = chatInput.value.trim()
+  if (!text) return
+  const id = ++msgIdCounter
+  messages.value.push({ id, text, isSelf: true })
+  chatInput.value = ''
+  setTimeout(() => {
+    messages.value = messages.value.filter(m => m.id !== id)
+  }, 9000)
+}
+
+const onMicPointerDown = (e) => {
+  isRecording.value = true
+  dragZoneVisible.value = true
+  startY = e.clientY
+  const rect = e.target.getBoundingClientRect()
+  dragZoneBottomY = rect.top - 12
+  dragZoneTopY = dragZoneBottomY - 70
+}
+
+const onMicPointerMove = (e) => {
+  if (!isRecording.value) return
+  inDragZone.value = e.clientY >= dragZoneTopY && e.clientY <= dragZoneBottomY
+}
+
+const onMicPointerUp = (e) => {
+  isRecording.value = false
+  dragZoneVisible.value = false
+  if (inDragZone.value) {
+    isVoiceMode.value = false
+    inDragZone.value = false
+  }
+}
+
+const loadTencentMap = () => {
+  return new Promise((resolve) => {
+    if (window.qq && window.qq.maps) { resolve(window.qq.maps); return }
+    const key = 'YOUR_TENCENT_MAP_KEY'
+    window.__onTMapLoaded = () => {
+      resolve(window.qq.maps)
+      delete window.__onTMapLoaded
+    }
+    const script = document.createElement('script')
+    script.src = `https://map.qq.com/api/js?v=2.exp&key=${key}&callback=__onTMapLoaded`
+    script.async = true
+    document.head.appendChild(script)
+  })
+}
+
 onMounted(async () => {
   try {
-    await loadBaiduMap()
-    const BMap = window.BMap
-    const dest = { lng: 120.1358, lat: 30.2712 }
+    const maps = await loadTencentMap()
+    const dest = new maps.LatLng(30.5713, 104.0583)
 
-    map = new BMap.Map(mapContainer.value)
-    map.centerAndZoom(new BMap.Point(dest.lng, dest.lat), 14)
-    map.enableScrollWheelZoom()
-
-    const destIcon = new BMap.Icon(
-      '//api.map.baidu.com/library/customMarker/img/mk.png',
-      new BMap.Size(23, 25)
-    )
-    const destMarker = new BMap.Marker(new BMap.Point(dest.lng, dest.lat), { icon: destIcon })
-    map.addOverlay(destMarker)
-
-    const destLabel = new BMap.Label('西溪湿地南门', {
-      position: new BMap.Point(dest.lng, dest.lat),
-      offset: new BMap.Size(-35, -30)
+    map = new maps.Map(mapContainer.value, {
+      center: dest,
+      zoom: 14,
+      scrollwheel: true,
+      zoomControl: false,
+      mapTypeControl: false
     })
-    destLabel.setStyle({
-      color: '#5D4037', fontSize: '11px', fontWeight: 'bold',
-      background: '#FFFDF9', border: '1px solid #FFD1DC',
-      borderRadius: '8px', padding: '2px 8px', whiteSpace: 'nowrap'
+
+    new maps.Marker({ position: dest, map })
+
+    new maps.InfoWindow({
+      map, position: dest,
+      content: '<div style="color:#5D4037;font-size:11px;font-weight:bold;background:#FFFDF9;border:1px solid #FFD1DC;border-radius:8px;padding:2px 8px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">成都锦城公园</div>'
     })
-    map.addOverlay(destLabel)
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const userPt = new BMap.Point(pos.coords.longitude, pos.coords.latitude)
-          const userIcon = new BMap.Icon(
-            '//api.map.baidu.com/library/customMarker/img/mk.png',
-            new BMap.Size(23, 25)
-          )
-          const userMarker = new BMap.Marker(userPt, { icon: userIcon })
-          map.addOverlay(userMarker)
+          const userPt = new maps.LatLng(pos.coords.latitude, pos.coords.longitude)
+          userAddr.value = '已定位'
 
-          const userLabel = new BMap.Label('我的位置', {
-            position: userPt,
-            offset: new BMap.Size(-20, -30)
-          })
-          userLabel.setStyle({
-            color: '#A7C7E7', fontSize: '11px', fontWeight: 'bold',
-            background: '#FFFDF9', border: '1px solid #A7C7E7',
-            borderRadius: '8px', padding: '2px 8px', whiteSpace: 'nowrap'
-          })
-          map.addOverlay(userLabel)
+          new maps.Marker({ position: userPt, map })
+
+            new maps.InfoWindow({
+              map, position: userPt,
+              content: '<div style="color:#A7C7E7;font-size:11px;font-weight:bold;background:#FFFDF9;border:1px solid #A7C7E7;border-radius:8px;padding:2px 8px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">我的位置</div>'
+            })
 
           const dist = calcDist(
             { lat: pos.coords.latitude, lng: pos.coords.longitude },
-            { lat: dest.lat, lng: dest.lng }
+            { lat: 30.5713, lng: 104.0583 }
           )
           distText.value = '距目的地 ' + fmtDist(dist)
-
-          map.centerAndZoom(userPt, 13)
+          map.setCenter(userPt)
+          map.setZoom(13)
         },
-        () => {
-          userAddr.value = '定位失败，使用默认位置'
-        },
+        () => { userAddr.value = '定位失败，使用默认位置' },
         { enableHighAccuracy: true, timeout: 10000 }
       )
     } else {
@@ -128,8 +165,8 @@ onUnmounted(() => {
       </header>
 
       <div class="flex items-center gap-2 px-6 mb-3 shrink-0">
-        <div class="flex-1 flex items-center gap-1.5 bg-[#F5F5F5] rounded-xl px-3 py-2">
-          <iconify-icon class="text-[#A7C7E7]" icon="solar:map-point-bold"></iconify-icon>
+        <div class="flex-1 flex items-center gap-1.5 bg-[#F5F5F5] rounded-xl px-3 py-2 overflow-hidden">
+          <iconify-icon class="shrink-0 text-[#A7C7E7]" icon="solar:map-point-bold"></iconify-icon>
           <div class="flex-1 min-w-0">
             <p class="text-[10px] text-gray-400">我的位置</p>
             <p class="text-xs text-[#5D4037] font-bold truncate">{{ userAddr }}</p>
@@ -145,18 +182,80 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div class="flex-1 relative" ref="mapContainer">
+      <div class="flex-1 relative rounded-2xl overflow-hidden" ref="mapContainer">
         <div class="absolute inset-0 flex items-center justify-center bg-gray-50 text-gray-400 text-sm" v-show="loading">地图加载中...</div>
+
+        <!-- Floating chat bubbles - full map, transparent background, topmost layer -->
+        <div class="absolute inset-0 z-10 pointer-events-none overflow-hidden flex flex-col justify-end" v-show="messages.length">
+          <div class="px-4 pb-5 space-y-2">
+            <div v-for="msg in messages" :key="msg.id" class="flex animate-float-up" :class="msg.isSelf ? 'justify-end' : 'justify-start'">
+              <div class="max-w-[70%] px-3 py-2 rounded-2xl text-xs shadow-md" :class="msg.isSelf ? 'bg-[#FF85A2] text-white' : 'bg-white text-[#5D4037] border border-gray-100'">
+                {{ msg.text }}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- input area -->
+      <div class="shrink-0 px-4 py-3 bg-[#FFFDF9]">
+          <template v-if="isVoiceMode">
+            <div class="flex flex-col items-center relative">
+              <div v-show="dragZoneVisible"
+                class="absolute -top-20 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 select-none"
+                :class="inDragZone ? 'bg-[#FF85A2] text-white scale-110 shadow-lg shadow-pink-200' : 'bg-gray-100 text-gray-400 border border-gray-200'">
+                上滑 松手切换文字
+              </div>
+              <div v-show="isRecording && !inDragZone" class="absolute -top-14 w-12 h-12 rounded-full bg-[#FF85A2]/20 animate-ping pointer-events-none"></div>
+              <button
+                class="w-16 h-16 rounded-full bg-[#FF85A2] text-white flex items-center justify-center shadow-lg shadow-pink-200 active:scale-90 transition-transform select-none touch-none relative"
+                @pointerdown="onMicPointerDown"
+                @pointermove="onMicPointerMove"
+                @pointerup="onMicPointerUp"
+                @pointerleave="onMicPointerUp">
+                <iconify-icon class="text-3xl" :icon="isRecording ? 'solar:record-bold' : 'solar:microphone-bold'"></iconify-icon>
+              </button>
+              <p class="text-[10px] text-gray-300 mt-1 select-none">{{ isRecording ? '录制中...' : '按住 语音输入' }}</p>
+            </div>
+          </template>
+          <template v-else>
+            <div class="flex flex-col gap-2">
+              <div v-show="showEmojiPicker" class="bg-white border border-gray-100 rounded-2xl shadow-xl p-3 max-h-[180px] overflow-y-auto custom-scrollbar grid grid-cols-7 gap-1">
+                <button v-for="e in emojis" :key="e" class="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-50 rounded-lg transition-colors" @click="insertEmoji(e)">{{ e }}</button>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0" @click="isVoiceMode = true">
+                  <iconify-icon class="text-gray-400 text-lg" icon="solar:microphone-bold"></iconify-icon>
+                </button>
+                <input class="flex-1 h-10 bg-gray-100 rounded-xl px-4 text-xs text-[#5D4037] outline-none" v-model="chatInput" placeholder="输入消息..." @keyup.enter="sendMessage" />
+                <button class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-base leading-none" @click="toggleEmojiPicker">
+                  😊
+                </button>
+                <button class="h-10 px-4 rounded-xl bg-[#FF85A2] text-white text-xs font-bold shadow-md shrink-0" @click="sendMessage">发送</button>
+              </div>
+            </div>
+          </template>
+        </div>
 
       <div class="px-6 py-4 bg-[#FFFDF9] border-t border-gray-50 shrink-0">
         <div class="flex items-center justify-between">
           <p class="text-xs text-gray-400">{{ distText || '计算距离中...' }}</p>
-          <button class="bg-[#FF85A2] text-white px-6 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-pink-100" @click="alert('已发送加入申请')">
-            申请加入
+          <button class="bg-red-400 text-white px-6 py-2.5 rounded-2xl text-sm font-bold shadow-lg shadow-red-100" @click="router.push('/social')">
+            断开连接
           </button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes float-up {
+  0% { opacity: 1; transform: translateY(0); }
+  70% { opacity: 1; filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-500px); filter: blur(6px); }
+}
+.animate-float-up {
+  animation: float-up 10s linear forwards;
+}
+</style>

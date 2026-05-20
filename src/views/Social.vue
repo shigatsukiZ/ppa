@@ -1,19 +1,45 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import BottomNav from '../components/BottomNav.vue'
 
+const router = useRouter()
 const showUpload = ref(false)
 const showWalk = ref(false)
 const walkMsg = ref('')
+const showConfirmModal = ref(false)
+const showGoModal = ref(false)
+const confirmMsg = ref('')
+let goTimer = null
 
 const fabClick = () => { showUpload.value = true }
 const hideUpload = () => { showUpload.value = false }
 const showJoinWalkSheet = () => { showWalk.value = true }
 const hideJoinWalkSheet = () => { showWalk.value = false }
+
 const submitJoinWalk = () => {
   hideJoinWalkSheet()
-  alert('已发送申请' + (walkMsg.value ? '，留言：' + walkMsg.value : ''))
+  confirmMsg.value = '已发送申请' + (walkMsg.value ? '，留言：' + walkMsg.value : '')
+  showConfirmModal.value = true
+  walkMsg.value = ''
 }
+
+const closeConfirmModal = () => {
+  showConfirmModal.value = false
+  goTimer = setTimeout(() => {
+    showGoModal.value = true
+  }, 20000)
+}
+
+const goToLocation = () => {
+  showGoModal.value = false
+  clearTimeout(goTimer)
+  router.push('/location')
+}
+
+onUnmounted(() => {
+  clearTimeout(goTimer)
+})
 </script>
 
 <template>
@@ -120,57 +146,92 @@ const submitJoinWalk = () => {
 
       <BottomNav @fab-click="fabClick" />
 
-      <div class="overlay" :class="{ show: showUpload }" @click="hideUpload"></div>
-      <div class="sheet" :class="{ show: showUpload }">
-        <div class="flex flex-col items-center gap-2 mb-6">
-          <div class="w-10 h-1 bg-gray-200 rounded-full"></div>
-          <span class="text-sm font-bold text-[#5D4037]">发布动态</span>
+      <Transition name="fade">
+        <div v-if="showUpload" class="overlay" @click="hideUpload"></div>
+      </Transition>
+      <Transition name="slide-up">
+        <div v-if="showUpload" class="sheet">
+          <div class="flex flex-col items-center gap-2 mb-6">
+            <div class="w-10 h-1 bg-gray-200 rounded-full"></div>
+            <span class="text-sm font-bold text-[#5D4037]">发布动态</span>
+          </div>
+          <div class="flex gap-6 justify-center">
+            <button class="flex flex-col items-center gap-2">
+              <div class="w-16 h-16 bg-[#A7C7E7] rounded-[24px] flex items-center justify-center creamy-shadow">
+                <iconify-icon class="text-white text-3xl" icon="solar:camera-bold"></iconify-icon>
+              </div>
+              <span class="text-xs font-bold text-[#5D4037]">拍照</span>
+            </button>
+            <button class="flex flex-col items-center gap-2">
+              <div class="w-16 h-16 bg-[#FFD1DC] rounded-[24px] flex items-center justify-center creamy-shadow">
+                <iconify-icon class="text-white text-3xl" icon="solar:gallery-bold"></iconify-icon>
+              </div>
+              <span class="text-xs font-bold text-[#5D4037]">从相册选择</span>
+            </button>
+          </div>
+          <button class="w-full mt-6 py-3 rounded-2xl bg-[#FDF0F3] text-[#FF85A2] text-sm font-bold" @click="hideUpload">取消</button>
         </div>
-        <div class="flex gap-6 justify-center">
-          <button class="flex flex-col items-center gap-2">
-            <div class="w-16 h-16 bg-[#A7C7E7] rounded-[24px] flex items-center justify-center creamy-shadow">
-              <iconify-icon class="text-white text-3xl" icon="solar:camera-bold"></iconify-icon>
-            </div>
-            <span class="text-xs font-bold text-[#5D4037]">拍照</span>
-          </button>
-          <button class="flex flex-col items-center gap-2">
-            <div class="w-16 h-16 bg-[#FFD1DC] rounded-[24px] flex items-center justify-center creamy-shadow">
-              <iconify-icon class="text-white text-3xl" icon="solar:gallery-bold"></iconify-icon>
-            </div>
-            <span class="text-xs font-bold text-[#5D4037]">从相册选择</span>
-          </button>
-        </div>
-        <button class="w-full mt-6 py-3 rounded-2xl bg-[#FDF0F3] text-[#FF85A2] text-sm font-bold" @click="hideUpload">取消</button>
-      </div>
+      </Transition>
 
-      <div class="overlay" :class="{ show: showWalk }" @click="hideJoinWalkSheet"></div>
-      <div class="sheet" :class="{ show: showWalk }">
-        <div class="flex flex-col items-center gap-2 mb-5">
-          <div class="w-10 h-1 bg-gray-200 rounded-full"></div>
-          <span class="text-sm font-bold text-[#5D4037]">申请加入约遛</span>
-        </div>
-        <div class="bg-[#F8FBFF] rounded-2xl p-4 border border-[#EAF0F7] mb-4">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 bg-[#A7C7E7] rounded-xl flex items-center justify-center text-white">
-              <iconify-icon icon="solar:map-point-bold"></iconify-icon>
-            </div>
-            <div>
-              <span class="text-sm font-bold text-[#5D4037]">陆家嘴中心公园</span>
-              <p class="text-[10px] text-green-400 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>距离 500m
-              </p>
+      <Transition name="fade">
+        <div v-if="showWalk" class="overlay" @click="hideJoinWalkSheet"></div>
+      </Transition>
+      <Transition name="slide-up">
+        <div v-if="showWalk" class="sheet">
+          <div class="flex flex-col items-center gap-2 mb-5">
+            <div class="w-10 h-1 bg-gray-200 rounded-full"></div>
+            <span class="text-sm font-bold text-[#5D4037]">申请加入约遛</span>
+          </div>
+          <div class="bg-[#F8FBFF] rounded-2xl p-4 border border-[#EAF0F7] mb-4">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-8 h-8 bg-[#A7C7E7] rounded-xl flex items-center justify-center text-white">
+                <iconify-icon icon="solar:map-point-bold"></iconify-icon>
+              </div>
+              <div>
+                <span class="text-sm font-bold text-[#5D4037]">陆家嘴中心公园</span>
+                <p class="text-[10px] text-green-400 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>距离 500m
+                </p>
+              </div>
             </div>
           </div>
+          <div class="mb-4">
+            <label class="text-xs font-bold text-[#5D4037] mb-2 block">留言给发起人</label>
+            <textarea class="walk-input" rows="3" placeholder="说说你的宠物情况和想一起遛的理由～" v-model="walkMsg"></textarea>
+          </div>
+          <div class="flex gap-3">
+            <button class="flex-1 py-3 rounded-2xl bg-[#FDF0F3] text-[#5D4037] text-sm font-bold" @click="hideJoinWalkSheet">取消</button>
+            <button class="flex-1 py-3 rounded-2xl bg-[#A7C7E7] text-white text-sm font-bold shadow-lg shadow-blue-100" @click="submitJoinWalk">确认申请</button>
+          </div>
         </div>
-        <div class="mb-4">
-          <label class="text-xs font-bold text-[#5D4037] mb-2 block">留言给发起人</label>
-          <textarea class="walk-input" rows="3" placeholder="说说你的宠物情况和想一起遛的理由～" v-model="walkMsg"></textarea>
+      </Transition>
+
+      <Transition name="fade">
+        <div v-if="showConfirmModal" class="fixed inset-0 bg-black/40 z-[70]" @click="closeConfirmModal"></div>
+      </Transition>
+      <Transition name="scale">
+        <div v-if="showConfirmModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-[32px] p-6 w-[300px] z-[80] shadow-2xl text-center">
+          <div class="w-16 h-16 bg-[#A7C7E7] rounded-full flex items-center justify-center mx-auto mb-4">
+            <iconify-icon class="text-white text-3xl" icon="solar:check-circle-bold"></iconify-icon>
+          </div>
+          <p class="text-sm font-bold text-[#5D4037] mb-6">{{ confirmMsg }}</p>
+          <button class="w-full py-3 rounded-2xl bg-[#A7C7E7] text-white text-sm font-bold shadow-lg shadow-blue-100" @click="closeConfirmModal">确定</button>
         </div>
-        <div class="flex gap-3">
-          <button class="flex-1 py-3 rounded-2xl bg-[#FDF0F3] text-[#5D4037] text-sm font-bold" @click="hideJoinWalkSheet">取消</button>
-          <button class="flex-1 py-3 rounded-2xl bg-[#A7C7E7] text-white text-sm font-bold shadow-lg shadow-blue-100" @click="submitJoinWalk">确认申请</button>
+      </Transition>
+
+      <Transition name="fade">
+        <div v-if="showGoModal" class="fixed inset-0 bg-black/40 z-[70]" @click="showGoModal = false"></div>
+      </Transition>
+      <Transition name="scale">
+        <div v-if="showGoModal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-[32px] p-6 w-[300px] z-[80] shadow-2xl text-center">
+          <div class="w-16 h-16 bg-[#FF85A2] rounded-full flex items-center justify-center mx-auto mb-4">
+            <iconify-icon class="text-white text-3xl" icon="solar:map-point-bold"></iconify-icon>
+          </div>
+          <p class="text-sm font-bold text-[#5D4037] mb-2">出发时间到！</p>
+          <p class="text-xs text-gray-400 mb-6">准备好了吗？去看看约遛位置吧</p>
+          <button class="w-full py-3 rounded-2xl bg-[#FF85A2] text-white text-sm font-bold shadow-lg shadow-pink-100" @click="goToLocation">去看看</button>
         </div>
-      </div>
+      </Transition>
     </div>
   </div>
 </template>

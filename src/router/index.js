@@ -5,7 +5,6 @@ import Social from '../views/Social.vue'
 import Mall from '../views/Mall.vue'
 import Detail from '../views/Detail.vue'
 import Order from '../views/Order.vue'
-import Profile from '../views/Profile.vue'
 import Setting from '../views/Setting.vue'
 import Search from '../views/Search.vue'
 import Location from '../views/Location.vue'
@@ -18,7 +17,6 @@ const routes = [
   { path: '/mall', component: Mall },
   { path: '/detail', component: Detail },
   { path: '/order', component: Order },
-  { path: '/profile', component: Profile },
   { path: '/setting', component: Setting },
   { path: '/search', component: Search },
   { path: '/location', component: Location },

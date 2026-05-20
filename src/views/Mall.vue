@@ -123,28 +123,32 @@ const goToDetail = () => { router.push('/detail') }
 
       <BottomNav @fab-click="fabClick" />
 
-      <div class="overlay" :class="{ show: showUpload }" @click="hideUpload"></div>
-      <div class="sheet" :class="{ show: showUpload }">
-        <div class="flex flex-col items-center gap-2 mb-6">
-          <div class="w-10 h-1 bg-gray-200 rounded-full"></div>
-          <span class="text-sm font-bold text-[#5D4037]">发布动态</span>
+      <Transition name="fade">
+        <div v-if="showUpload" class="overlay" @click="hideUpload"></div>
+      </Transition>
+      <Transition name="slide-up">
+        <div v-if="showUpload" class="sheet">
+          <div class="flex flex-col items-center gap-2 mb-6">
+            <div class="w-10 h-1 bg-gray-200 rounded-full"></div>
+            <span class="text-sm font-bold text-[#5D4037]">发布动态</span>
+          </div>
+          <div class="flex gap-6 justify-center">
+            <button class="flex flex-col items-center gap-2">
+              <div class="w-16 h-16 bg-[#FF85A2] rounded-[24px] flex items-center justify-center creamy-shadow">
+                <iconify-icon class="text-white text-3xl" icon="solar:camera-bold"></iconify-icon>
+              </div>
+              <span class="text-xs font-bold text-[#5D4037]">拍照</span>
+            </button>
+            <button class="flex flex-col items-center gap-2">
+              <div class="w-16 h-16 bg-[#A7C7E7] rounded-[24px] flex items-center justify-center creamy-shadow">
+                <iconify-icon class="text-white text-3xl" icon="solar:gallery-bold"></iconify-icon>
+              </div>
+              <span class="text-xs font-bold text-[#5D4037]">从相册选择</span>
+            </button>
+          </div>
+          <button class="w-full mt-6 py-3 rounded-2xl bg-[#FDF0F3] text-[#FF85A2] text-sm font-bold" @click="hideUpload">取消</button>
         </div>
-        <div class="flex gap-6 justify-center">
-          <button class="flex flex-col items-center gap-2">
-            <div class="w-16 h-16 bg-[#FFD1DC] rounded-[24px] flex items-center justify-center creamy-shadow">
-              <iconify-icon class="text-white text-3xl" icon="solar:camera-bold"></iconify-icon>
-            </div>
-            <span class="text-xs font-bold text-[#5D4037]">拍照</span>
-          </button>
-          <button class="flex flex-col items-center gap-2">
-            <div class="w-16 h-16 bg-[#A7C7E7] rounded-[24px] flex items-center justify-center creamy-shadow">
-              <iconify-icon class="text-white text-3xl" icon="solar:gallery-bold"></iconify-icon>
-            </div>
-            <span class="text-xs font-bold text-[#5D4037]">从相册选择</span>
-          </button>
-        </div>
-        <button class="w-full mt-6 py-3 rounded-2xl bg-[#FDF0F3] text-[#FF85A2] text-sm font-bold" @click="hideUpload">取消</button>
-      </div>
+      </Transition>
     </div>
   </div>
 </template>
