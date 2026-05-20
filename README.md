@@ -1,6 +1,6 @@
 # PPA (Pet Partner App) — 宠物社交平台原型
 
-基于 **Vue 3 (Composition API) + Vite + Tailwind CSS** 构建的宠物主题移动端 SPA 原型，模拟手机容器展示，包含社交动态、即时聊天、搜索发现、账号管理等模块，配套 Express 搜索 API 服务。
+基于 **Vue 3 (Composition API) + Vite + Tailwind CSS** 构建的宠物主题移动端 SPA 原型，模拟手机容器展示，包含社交动态、即时聊天、搜索发现、商城购物、支付流程、账号管理等模块，配套 Express 搜索 API 服务。
 
 ---
 
@@ -96,23 +96,25 @@ ppa/
     │   └── index.js           # 路由定义（Hash 模式）
     ├── views/
     │   ├── Auth.vue           # 登录页
-    │   ├── Home.vue           # 首页（动态流）
+    │   ├── Home.vue           # 首页（推荐动态流 + 商城 tab：轮播/分类筛选/12商品网格）
     │   ├── Search.vue         # 搜索 + 推荐 + 热点排行
     │   ├── Social.vue         # 发现（附近的人/群组）
     │   ├── Chat.vue           # 聊天 + 通知（双 Tab）
     │   ├── ChatDetail.vue     # 聊天详情（微信风格气泡）
     │   ├── Profile.vue        # 用户主页
-    │   ├── Detail.vue         # 帖子详情
+    │   ├── Detail.vue         # 帖子详情（评论区）
+    │   ├── ProductDetail.vue  # 商品详情（图片轮播/参数/评价/加购）
+    │   ├── Cart.vue           # 购物车（勾选/数量/结算）
+    │   ├── Payment.vue        # 支付（微信支付/支付宝）
     │   ├── PostEdit.vue       # 发布帖子
-    │   ├── Mall.vue           # 商城
-    │   ├── Order.vue          # 订单
+    │   ├── Order.vue          # 订单详情（支付成功态）
     │   ├── Location.vue       # 位置（腾讯地图占位）
     │   └── Setting.vue        # 账号安全设置
     └── components/
-        ├── BottomNav.vue      # 底部导航（5项，+ 发布居中）
+        ├── BottomNav.vue      # 底部导航（5项，滚动方向控制显隐）
         ├── Sidebar.vue        # 侧边抽屉（用户信息/宠物档案）
-        ├── PostCard.vue       # 帖子卡片（头像点击/多图圆角）
-        └── HelloWorld.vue     # 模板遗留组件
+        ├── PostCard.vue       # 帖子卡片（评论/转发浮窗，广告→商品详情）
+        └── WalkCard.vue       # 约遛组件（加入/去地图）
 ```
 
 ---
@@ -123,16 +125,18 @@ ppa/
 |------|------|------|
 | `/` | — | 重定向到 `/auth` |
 | `/auth` | Auth | 登录/注册 |
-| `/home` | Home | 首页动态流 |
+| `/home` | Home | 首页（推荐动态流 + 商城 tab，支持 `?tab=mall` 参数） |
 | `/search` | Search | 搜索 + 推荐 + 热点 |
 | `/social` | Social | 发现（附近的人/群组） |
 | `/chat` | Chat | 聊天列表 + 通知 Tab |
 | `/chat/:name` | ChatDetail | 与指定用户的聊天详情 |
 | `/profile/:name` | Profile | 指定用户的个人主页 |
-| `/detail` | Detail | 帖子详情 |
+| `/detail` | Detail | 帖子详情（评论区） |
+| `/product/:id` | ProductDetail | 商品详情（轮播/参数/评价/加购） |
+| `/cart` | Cart | 购物车（勾选/数量/结算） |
+| `/payment` | Payment | 支付（微信支付/支付宝） |
 | `/post-edit` | PostEdit | 发布新帖子 |
-| `/mall` | Mall | 宠物商城 |
-| `/order` | Order | 订单列表 |
+| `/order` | Order | 订单详情（支付成功态） |
 | `/location` | Location | 附近位置（腾讯地图） |
 | `/setting` | Setting | 账号安全设置 |
 
@@ -147,6 +151,8 @@ ppa/
 - 发布按钮居中放大，粉底白字圆形，非 `-mt-4` 上移方案
 - 整体 `rounded-[28px]` 四角圆角 + `border` 浮动效果
 - 当前路由高亮（使用 `router.currentRoute`）
+- 支持 `:hidden` prop，所有页面统一「上滑浮出，下滑隐藏」
+- `transition-transform duration-300` 平滑过渡
 
 ### Sidebar.vue
 
@@ -158,14 +164,14 @@ ppa/
 - 「添加」按钮跳转 `/post-edit`
 - 蓝底认证徽章使用 `w-5 h-5` 固定尺寸正圆形
 
-### PostCard.vue
+### WalkCard.vue
 
-首页动态流中的帖子卡片。
+约遛活动卡片，内嵌于 PostCard 中取代位置行。
 
-- 头像 & 昵称可点击 → `emit('avatar-click', nickname)` → 跳转 `/profile/:name`
-- 多图网格：每张图独立 `rounded-xl overflow-hidden`
-- 单张图片占据 `col-span-2` 全宽
-- 底部显示点赞/评论/浏览数
+- 显示标题/地点/时间/发起人/距离
+- 「加入」按钮 → `emit('join')`
+- 「去地图」按钮 → `emit('view-map')`
+- 加入后状态切换为「已加入 ✓」
 
 ---
 
@@ -231,6 +237,9 @@ GET /api/search?q=元宝
 | `ppa_chats` | 聊天列表（预置 + 关注用户合并） | `[{name, avatar, preview, time, unread}]` |
 | `ppa_draft` | 发布草稿 | `{content, images}` |
 | `ppa_new_posts` | 新增帖子数据 | `[{content, images, ...}]` |
+| `payTotal` (session) | 支付金额 | `"388.0"` |
+| `cartItems` (session) | 购物车结算商品 | `[{id, name, price, qty, img}]` |
+| `orderInfo` (session) | 订单信息 | `{name, spec, qty, price, total, img, orderNum}` |
 
 ### 聊天数据流
 
@@ -238,6 +247,14 @@ GET /api/search?q=元宝
 2. 从 localStorage `ppa_chats` 恢复已关注用户
 3. 合并去重后渲染聊天列表
 4. 搜索页点击「关注」→ `localStorage.ppa_chats` 追加 → 跳转 ChatDetail
+
+### 购物支付流程
+
+1. 商城 tab → 商品网格 / 广告帖点击 → `/product/:id`
+2. ProductDetail「加入购物车」→ 本地计数，「立即购买」→ sessionStorage → `/payment`
+3. Cart 结算 → sessionStorage `cartItems` + `payTotal` → `/payment`
+4. Payment 选择微信/支付宝 → 确认支付（模拟 1.8s）→ sessionStorage `orderInfo` → `/order`
+5. Order 展示支付成功状态 + 订单详情
 
 ### 路由策略
 
@@ -256,6 +273,8 @@ GET /api/search?q=元宝
 | 矩形元素圆角 | 统一四角圆角（无单角特殊处理） |
 | 卡片阴影 | `.creamy-shadow`: `0 4px 15px rgba(255, 133, 162, 0.15)` |
 | 主色调 | 粉色 `#FF85A2`、深褐 `#5D4037`、浅蓝 `#A7C7E7` |
+| 底部栏显隐 | `transition-transform duration-300` + `translate-y-full` / `translate-y-0` |
+| 购物支付 | sessionStorage 跨页传递数据，模拟支付 1.8s 延时 |
 
 ---
 

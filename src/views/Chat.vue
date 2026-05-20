@@ -6,6 +6,7 @@ import Sidebar from '../components/Sidebar.vue'
 
 const router = useRouter()
 const navHidden = ref(false)
+let lastScrollTopChat = 0
 const showSidebar = ref(false)
 const chatTab = ref('chat')
 const filterOpen = ref(false)
@@ -17,6 +18,70 @@ const searchInput = ref(null)
 const filterOptions = ['全部', '未读', '好友', '群聊']
 
 const defaultChats = [
+  {
+    id: 1,
+    name: '布丁麻麻',
+    avatar: 'https://picsum.photos/200?random=4',
+    preview: '元宝今天在公园玩的开心吗？',
+    time: '刚刚',
+    unread: 2,
+  },
+  {
+    id: 1,
+    name: '布丁麻麻',
+    avatar: 'https://picsum.photos/200?random=4',
+    preview: '元宝今天在公园玩的开心吗？',
+    time: '刚刚',
+    unread: 2,
+  },
+  {
+    id: 1,
+    name: '布丁麻麻',
+    avatar: 'https://picsum.photos/200?random=4',
+    preview: '元宝今天在公园玩的开心吗？',
+    time: '刚刚',
+    unread: 2,
+  },
+  {
+    id: 1,
+    name: '布丁麻麻',
+    avatar: 'https://picsum.photos/200?random=4',
+    preview: '元宝今天在公园玩的开心吗？',
+    time: '刚刚',
+    unread: 2,
+  },
+  {
+    id: 1,
+    name: '布丁麻麻',
+    avatar: 'https://picsum.photos/200?random=4',
+    preview: '元宝今天在公园玩的开心吗？',
+    time: '刚刚',
+    unread: 2,
+  },
+  {
+    id: 1,
+    name: '布丁麻麻',
+    avatar: 'https://picsum.photos/200?random=4',
+    preview: '元宝今天在公园玩的开心吗？',
+    time: '刚刚',
+    unread: 2,
+  },
+  {
+    id: 1,
+    name: '布丁麻麻',
+    avatar: 'https://picsum.photos/200?random=4',
+    preview: '元宝今天在公园玩的开心吗？',
+    time: '刚刚',
+    unread: 2,
+  },
+  {
+    id: 1,
+    name: '布丁麻麻',
+    avatar: 'https://picsum.photos/200?random=4',
+    preview: '元宝今天在公园玩的开心吗？',
+    time: '刚刚',
+    unread: 2,
+  },
   {
     id: 1,
     name: '布丁麻麻',
@@ -67,16 +132,25 @@ const openChat = (chat) => {
 }
 
 const onScroll = (e) => {
-  const el = e.target
-  const threshold = 20
-  if (el.scrollTop > threshold) {
-    navHidden.value = true
-  } else {
-    navHidden.value = false
-  }
+  const st = e.target.scrollTop
+  if (st < lastScrollTopChat) navHidden.value = false
+  else if (st > lastScrollTopChat && st > 10) navHidden.value = true
+  lastScrollTopChat = st
 }
 
 onMounted(loadChats)
+
+const notifications = ref([
+  { id: 1, icon: 'solar:heart-bold', iconBg: '#FFE4E1', iconColor: 'text-[#FF85A2]', title: '大白姐姐 赞了你的帖子', time: '2 分钟前' },
+  { id: 2, icon: 'solar:chat-round-dots-bold', iconBg: '#E8F5E9', iconColor: 'text-green-500', title: '团子爸爸 回复了你', desc: '"好可爱的猫猫！我家团子也爱吃这个～"', time: '15 分钟前' },
+  { id: 3, icon: 'solar:bell-bold', iconBg: '#FFF3E0', iconColor: 'text-orange-500', title: '系统通知：你的帖子被推荐', desc: '"宠物社交达人"有你的内容被推荐到首页', time: '1 小时前' },
+  { id: 4, icon: 'solar:users-group-rounded-bold', iconBg: '#E8EAF6', iconColor: 'text-indigo-500', title: '泡芙麻麻 关注了你', time: '昨天' },
+  { id: 5, icon: 'solar:star-bold', iconBg: '#FCE4EC', iconColor: 'text-pink-500', title: '布丁麻麻 收藏了你的帖子', time: '昨天' },
+])
+
+const clearNotifications = () => {
+  notifications.value = []
+}
 </script>
 
 <template>
@@ -104,7 +178,10 @@ onMounted(loadChats)
               <button v-for="opt in filterOptions" :key="opt" class="block w-full text-left px-3 py-2 text-xs text-[#5D4037] hover:bg-[#FDF0F3] transition-colors" :class="filterText === opt ? 'font-bold text-[#FF85A2]' : ''" @click="filterText = opt; filterOpen = false">{{ opt }}</button>
             </div>
           </Transition>
-          <div v-if="chatTab === 'notif'" class="w-[76px]"></div>
+          <div v-if="chatTab === 'notif'" class="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-gray-200 text-xs text-gray-500 font-medium cursor-pointer hover:bg-gray-50 transition-colors" @click="clearNotifications">
+            <iconify-icon icon="solar:trash-bin-minimalistic-bold" class="text-xs"></iconify-icon>
+            一键清理
+          </div>
         </div>
       </header>
 
@@ -117,7 +194,7 @@ onMounted(loadChats)
           <div v-else class="flex items-center gap-2 bg-[#FDF0F3] rounded-xl px-4 py-2">
             <iconify-icon class="text-gray-400 text-base shrink-0" icon="solar:magnifer-linear"></iconify-icon>
             <input ref="searchInput" v-model="searchQuery" placeholder="搜索聊天记录..." class="flex-1 bg-transparent outline-none text-xs text-[#5D4037] placeholder-gray-300 min-w-0" @keyup.enter="exitSearch"/>
-            <button class="shrink-0 text-[10px] text-gray-400 font-medium" @click="exitSearch">取消</button>
+            <button class="shrink-0 text-[10px] text-gray-400 font-medium px-2 py-1 rounded-lg hover:bg-gray-200 transition-colors" @click="exitSearch">取消</button>
           </div>
         </div>
 
@@ -144,54 +221,20 @@ onMounted(loadChats)
 
       <template v-else>
         <main class="flex-1 overflow-y-auto custom-scrollbar" @scroll="onScroll">
-          <div class="flex items-center gap-3 px-4 py-3 border-b border-[#F0F0F0]">
-            <div class="w-10 h-10 rounded-full bg-[#FFE4E1] flex items-center justify-center shrink-0">
-              <iconify-icon class="text-[#FF85A2] text-lg" icon="solar:heart-bold"></iconify-icon>
+          <div v-for="n in notifications" :key="n.id" class="flex items-center gap-3 px-4 py-3 border-b border-[#F0F0F0]">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" :style="{ background: n.iconBg }">
+              <iconify-icon :class="n.iconColor + ' text-lg'" :icon="n.icon"></iconify-icon>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-[#5D4037]">大白姐姐 赞了你的帖子</p>
-              <p class="text-[10px] text-gray-400 mt-0.5">2 分钟前</p>
+              <p class="text-sm font-bold text-[#5D4037]">{{ n.title }}</p>
+              <p v-if="n.desc" class="text-xs text-gray-400 truncate mt-0.5">{{ n.desc }}</p>
+              <p class="text-[10px] text-gray-400 mt-0.5">{{ n.time }}</p>
             </div>
           </div>
-          <div class="flex items-center gap-3 px-4 py-3 border-b border-[#F0F0F0]">
-            <div class="w-10 h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center shrink-0">
-              <iconify-icon class="text-green-500 text-lg" icon="solar:chat-round-dots-bold"></iconify-icon>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-[#5D4037]">团子爸爸 回复了你</p>
-              <p class="text-xs text-gray-400 truncate mt-0.5">"好可爱的猫猫！我家团子也爱吃这个～"</p>
-              <p class="text-[10px] text-gray-400 mt-0.5">15 分钟前</p>
-            </div>
+          <div v-if="!notifications.length" class="h-40 flex items-center justify-center">
+            <span class="text-xs text-gray-200">暂无通知</span>
           </div>
-          <div class="flex items-center gap-3 px-4 py-3 border-b border-[#F0F0F0]">
-            <div class="w-10 h-10 rounded-full bg-[#FFF3E0] flex items-center justify-center shrink-0">
-              <iconify-icon class="text-orange-500 text-lg" icon="solar:bell-bold"></iconify-icon>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-[#5D4037]">系统通知：你的帖子被推荐</p>
-              <p class="text-xs text-gray-400 truncate mt-0.5">"宠物社交达人"有你的内容被推荐到首页</p>
-              <p class="text-[10px] text-gray-400 mt-0.5">1 小时前</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-3 px-4 py-3 border-b border-[#F0F0F0]">
-            <div class="w-10 h-10 rounded-full bg-[#E8EAF6] flex items-center justify-center shrink-0">
-              <iconify-icon class="text-indigo-500 text-lg" icon="solar:users-group-rounded-bold"></iconify-icon>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-[#5D4037]">泡芙麻麻 关注了你</p>
-              <p class="text-[10px] text-gray-400 mt-0.5">昨天</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-3 px-4 py-3 border-b border-[#F0F0F0]">
-            <div class="w-10 h-10 rounded-full bg-[#FCE4EC] flex items-center justify-center shrink-0">
-              <iconify-icon class="text-pink-500 text-lg" icon="solar:star-bold"></iconify-icon>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-[#5D4037]">布丁麻麻 收藏了你的帖子</p>
-              <p class="text-[10px] text-gray-400 mt-0.5">昨天</p>
-            </div>
-          </div>
-          <div class="h-12 flex items-center justify-center">
+          <div v-else class="h-12 flex items-center justify-center">
             <span class="text-xs text-gray-200">没有更多通知了</span>
           </div>
         </main>

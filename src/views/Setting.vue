@@ -4,6 +4,15 @@ import { useRouter } from 'vue-router'
 import BottomNav from '../components/BottomNav.vue'
 
 const router = useRouter()
+const navHidden = ref(false)
+let lastScrollTop = 0
+
+const onMainScroll = (e) => {
+  const st = e.target.scrollTop
+  if (st < lastScrollTop) navHidden.value = false
+  else if (st > lastScrollTop && st > 10) navHidden.value = true
+  lastScrollTop = st
+}
 
 const showPhoneModal = ref(false)
 const showLogoutModal = ref(false)
@@ -39,7 +48,7 @@ const doAddAccount = () => {
         <h1 class="text-xl font-bold text-[#5D4037]">账号安全</h1>
       </header>
 
-      <main class="flex-1 overflow-y-auto px-6 pb-20 custom-scrollbar">
+      <main class="flex-1 overflow-y-auto px-6 pb-20 custom-scrollbar" @scroll="onMainScroll">
         <div class="bg-white rounded-2xl p-5 creamy-shadow mb-4 cursor-pointer" @click="showPhoneModal = true">
           <div class="flex justify-between items-center">
             <div>
@@ -131,7 +140,7 @@ const doAddAccount = () => {
         </div>
       </Transition>
 
-      <BottomNav />
+      <BottomNav :hidden="navHidden" />
     </div>
   </div>
 </template>

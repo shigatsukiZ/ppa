@@ -8,6 +8,15 @@ const showUpload = ref(false)
 const showWalk = ref(false)
 const walkMsg = ref('')
 const showConfirmModal = ref(false)
+const navHidden = ref(false)
+let lastScrollTop = 0
+
+const onMainScroll = (e) => {
+  const st = e.target.scrollTop
+  if (st < lastScrollTop) navHidden.value = false
+  else if (st > lastScrollTop && st > 10) navHidden.value = true
+  lastScrollTop = st
+}
 const showGoModal = ref(false)
 const confirmMsg = ref('')
 let goTimer = null
@@ -56,7 +65,7 @@ onUnmounted(() => {
         </div>
       </header>
 
-      <main class="flex-1 overflow-y-auto custom-scrollbar px-6 pb-24">
+      <main class="flex-1 overflow-y-auto custom-scrollbar px-6 pb-24" @scroll="onMainScroll">
         <div class="grid grid-cols-2 gap-4 mb-8">
           <div class="zone-card-cat p-5 rounded-[32px] border border-white creamy-shadow relative overflow-hidden group">
             <h3 class="text-lg font-black text-[#8B4513] mb-1">喵星专区</h3>
@@ -144,7 +153,7 @@ onUnmounted(() => {
         </section>
       </main>
 
-      <BottomNav @fab-click="fabClick" />
+      <BottomNav :hidden="navHidden" @fab-click="fabClick" />
 
       <Transition name="fade">
         <div v-if="showUpload" class="overlay" @click="hideUpload"></div>

@@ -235,7 +235,7 @@ const gifUrls = [
   <div class="flex justify-center items-center min-h-screen bg-gray-100">
     <div class="w-[375px] h-[812px] bg-white rounded-[40px] shadow-2xl overflow-hidden relative border-[8px] border-white flex flex-col pt-10">
       <header class="shrink-0 flex items-center px-4 h-12 border-b border-[#F0F0F0]">
-        <button class="w-8 h-8 flex items-center justify-center text-gray-500 -ml-1" @click="close">
+        <button class="w-8 h-8 flex items-center justify-center text-gray-500 -ml-1 rounded-full hover:bg-gray-100 transition-colors" @click="close">
           <iconify-icon class="text-2xl" icon="solar:arrow-left-linear"></iconify-icon>
         </button>
         <span class="flex-1"></span>
@@ -271,7 +271,7 @@ const gifUrls = [
           <textarea
             v-model="content"
             placeholder="有什么新鲜事？"
-            class="w-full flex-1 resize-none text-base text-[#5D4037] placeholder-gray-300 leading-relaxed outline-none bg-transparent min-h-[180px]"
+            class="w-full flex-1 resize-none text-base text-[#5D4037] placeholder-gray-300 leading-relaxed outline-none bg-transparent min-h-[180px] rounded-xl"
           ></textarea>
 
           <div v-if="images.length" class="flex gap-2 flex-wrap mb-3">

@@ -7,7 +7,7 @@ const route = useRoute()
 const router = useRouter()
 const userName = route.params.name
 
-const activeProfileTab = ref('posts')
+const activeProfileTab = ref('帖子')
 
 const userInfo = computed(() => {
   const allUsers = [
@@ -24,32 +24,80 @@ const userInfo = computed(() => {
   return allUsers.find(u => u.name === userName) || allUsers[0]
 })
 
-const userPosts = computed(() => [
-  {
-    id: userName + '-1',
-    nickname: userName,
-    avatar: userInfo.value.avatar,
-    time: '昨天 · 发布',
-    content: `${userName}的新动态！今天带毛孩子出去玩了，超级开心的一天～🐾`,
-    images: ['https://modao.cc/agent-py/media/generated_images/2026-04-28/5900002fc3fe424ebe9f62fdd0fed151.jpg'],
-    likes: '238',
-    comments: '12',
-    views: '1.2k',
-    hasBadge: true,
-  },
-  {
-    id: userName + '-2',
-    nickname: userName,
-    avatar: userInfo.value.avatar,
-    time: '3天前 · 发布',
-    content: '分享一下最近入手的好物，毛孩子超爱！链接在评论区～',
-    images: ['https://modao.cc/agent-py/media/generated_images/2026-04-28/c1b3faf520804bda89bbdd836711d2d6.jpg'],
-    likes: '156',
-    comments: '8',
-    views: '856',
-    hasBadge: true,
-  },
-])
+const formatCount = (val) => {
+  const n = typeof val === 'string' ? parseFloat(val.replace('k', '')) * 1000 : val
+  if (n >= 10000) return (n / 10000).toFixed(1) + 'w'
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'k'
+  return String(n)
+}
+const parseCount = (val) => {
+  if (typeof val === 'number') return val
+  const s = val.toLowerCase()
+  if (s.endsWith('w')) return parseFloat(s) * 10000
+  if (s.endsWith('k')) return parseFloat(s) * 1000
+  return parseInt(s) || 0
+}
+
+const userPosts = ref([])
+
+const buildPosts = () => {
+  userPosts.value = [
+    {
+      id: userName + '-1',
+      nickname: userName,
+      avatar: userInfo.value.avatar,
+      time: '昨天 · 发布',
+      content: `${userName}的新动态！今天带毛孩子出去玩了，超级开心的一天～🐾`,
+      images: ['https://modao.cc/agent-py/media/generated_images/2026-04-28/5900002fc3fe424ebe9f62fdd0fed151.jpg'],
+      likes: '238',
+      comments: '12',
+      views: '1.2k',
+      hasBadge: true,
+      liked: false,
+      favorited: false,
+      retweeted: false,
+    },
+    {
+      id: userName + '-2',
+      nickname: userName,
+      avatar: userInfo.value.avatar,
+      time: '3天前 · 发布',
+      content: '分享一下最近入手的好物，毛孩子超爱！链接在评论区～',
+      images: ['https://modao.cc/agent-py/media/generated_images/2026-04-28/c1b3faf520804bda89bbdd836711d2d6.jpg'],
+      likes: '156',
+      comments: '8',
+      views: '856',
+      hasBadge: true,
+      liked: false,
+      favorited: false,
+      retweeted: false,
+    },
+  ]
+}
+
+buildPosts()
+
+const onProfileLike = (id) => {
+  const p = userPosts.value.find(x => x.id === id)
+  if (p) { p.liked = !p.liked; p.likes = formatCount(Math.max(0, parseCount(p.likes) + (p.liked ? 1 : -1))) }
+}
+const onProfileRetweet = (id) => {
+  const p = userPosts.value.find(x => x.id === id)
+  if (!p) return
+  if (p.retweeted) {
+    p.retweeted = false
+    p.retweets = formatCount(Math.max(0, parseCount(p.retweets || 0) - 1))
+    return
+  }
+  if (confirm('转发该帖子到你的动态？')) {
+    p.retweeted = true
+    p.retweets = formatCount(Math.max(0, parseCount(p.retweets || 0) + 1))
+  }
+}
+const onProfileFavorite = (id) => {
+  const p = userPosts.value.find(x => x.id === id)
+  if (p) { p.favorited = !p.favorited; p.favorites = formatCount(Math.max(0, parseCount(p.favorites || 0) + (p.favorited ? 1 : -1))) }
+}
 
 const isFollowed = ref(false)
 const toggleFollow = () => { isFollowed.value = !isFollowed.value }
@@ -64,7 +112,7 @@ const goChat = () => {
     <div class="w-[375px] h-[812px] bg-white rounded-[40px] shadow-2xl overflow-hidden relative border-[8px] border-white flex flex-col pt-10">
       <div class="shrink-0 z-10 bg-white/80 backdrop-blur-lg">
         <div class="flex items-center px-4 h-11">
-          <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors" @click="router.back()">
+          <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors" @click="router.push('/home')">
             <iconify-icon class="text-gray-500 text-xl" icon="solar:arrow-left-linear"></iconify-icon>
           </button>
           <h1 class="flex-1 text-center text-sm font-black text-[#5D4037]">{{ userName }}</h1>
@@ -105,12 +153,12 @@ const goChat = () => {
             v-for="p in userPosts"
             :key="p.id"
             v-bind="p"
-            @like="() => {}"
-            @comment="() => {}"
-            @retweet="() => {}"
-            @favorite="() => {}"
-            @share="() => {}"
-            @more="() => {}"
+            @like="onProfileLike"
+            @comment="(e) => { if (typeof e === 'object' && e.text) alert('评论已发送：' + e.text); else router.push('/detail') }"
+            @retweet="(e) => onProfileRetweet(typeof e === 'object' ? e.id : e)"
+            @favorite="onProfileFavorite"
+            @share="() => { navigator.clipboard?.writeText(p.content); alert('已复制分享内容') }"
+            @detail="() => router.push('/detail')"
           />
         </div>
 

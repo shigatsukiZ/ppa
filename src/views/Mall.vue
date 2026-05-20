@@ -5,6 +5,15 @@ import BottomNav from '../components/BottomNav.vue'
 
 const router = useRouter()
 const showUpload = ref(false)
+const navHidden = ref(false)
+let lastScrollTop = 0
+
+const onMainScroll = (e) => {
+  const st = e.target.scrollTop
+  if (st < lastScrollTop) navHidden.value = false
+  else if (st > lastScrollTop && st > 10) navHidden.value = true
+  lastScrollTop = st
+}
 
 const fabClick = () => { showUpload.value = true }
 const hideUpload = () => { showUpload.value = false }
@@ -32,7 +41,7 @@ const goToDetail = () => { router.push('/detail') }
         </div>
       </header>
 
-      <main class="flex-1 overflow-y-auto custom-scrollbar px-6 pb-24">
+      <main class="flex-1 overflow-y-auto custom-scrollbar px-6 pb-24" @scroll="onMainScroll">
         <div class="flex gap-4 overflow-x-auto custom-scrollbar mb-6">
           <div class="flex flex-col items-center gap-2 shrink-0">
             <div class="w-16 h-16 bg-[#FFD1DC] rounded-[24px] flex items-center justify-center creamy-shadow">
@@ -121,7 +130,7 @@ const goToDetail = () => { router.push('/detail') }
         </div>
       </main>
 
-      <BottomNav @fab-click="fabClick" />
+      <BottomNav :hidden="navHidden" @fab-click="fabClick" />
 
       <Transition name="fade">
         <div v-if="showUpload" class="overlay" @click="hideUpload"></div>

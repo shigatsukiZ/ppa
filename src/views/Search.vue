@@ -37,6 +37,14 @@ const followUsers = ref([
   { name: '毛球麻麻', desc: '两只柯基的快乐生活', avatar: 'https://picsum.photos/200?random=2' },
   { name: '可乐麻麻', desc: '金毛控 | 训练教程分享', avatar: 'https://picsum.photos/200?random=3' },
   { name: '布丁麻麻', desc: '猫狗双全的人生赢家', avatar: 'https://picsum.photos/200?random=4' },
+  { name: '泡芙麻麻', desc: '布偶猫日常 | 养猫好物分享', avatar: 'https://picsum.photos/200?random=1' },
+  { name: '毛球麻麻', desc: '两只柯基的快乐生活', avatar: 'https://picsum.photos/200?random=2' },
+  { name: '可乐麻麻', desc: '金毛控 | 训练教程分享', avatar: 'https://picsum.photos/200?random=3' },
+  { name: '布丁麻麻', desc: '猫狗双全的人生赢家', avatar: 'https://picsum.photos/200?random=4' },
+  { name: '泡芙麻麻', desc: '布偶猫日常 | 养猫好物分享', avatar: 'https://picsum.photos/200?random=1' },
+  { name: '毛球麻麻', desc: '两只柯基的快乐生活', avatar: 'https://picsum.photos/200?random=2' },
+  { name: '可乐麻麻', desc: '金毛控 | 训练教程分享', avatar: 'https://picsum.photos/200?random=3' },
+  { name: '布丁麻麻', desc: '猫狗双全的人生赢家', avatar: 'https://picsum.photos/200?random=4' },
 ])
 
 const searchResults = ref(null)
@@ -114,7 +122,7 @@ const onMainScroll = (e) => {
           <div v-else class="flex items-center bg-gray-100 rounded-full px-3 h-9 gap-1.5">
             <iconify-icon class="text-gray-400 text-sm shrink-0" icon="solar:magnifer-linear"></iconify-icon>
             <input ref="searchInput" v-model="searchQuery" placeholder="搜索宠物、商品、用户..." class="flex-1 bg-transparent outline-none text-xs text-[#5D4037] placeholder-gray-300 min-w-0" @keyup.enter="doSearch"/>
-            <button class="shrink-0 text-[10px] text-gray-400 font-medium" @click="exitSearch">取消</button>
+            <button class="shrink-0 text-[10px] text-gray-400 font-medium px-2 py-1 rounded-lg hover:bg-gray-200 transition-colors" @click="exitSearch">取消</button>
           </div>
         </div>
         <button class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors shrink-0 cursor-pointer" @click="router.push('/setting')">
@@ -125,7 +133,7 @@ const onMainScroll = (e) => {
       <main class="flex-1 overflow-y-auto custom-scrollbar" @scroll="onMainScroll">
         <template v-if="searchResults">
           <div class="px-4 pt-3 pb-2 border-b border-[#F0F0F0]">
-            <button class="text-xs text-[#FF85A2] font-medium" @click="clearSearch">‹ 返回推荐</button>
+            <button class="text-xs text-[#FF85A2] font-medium px-2 py-1 rounded-lg hover:bg-[#FDF0F3] transition-colors" @click="clearSearch">‹ 返回推荐</button>
           </div>
 
           <div v-if="searchResults.posts.length" class="px-4 pt-3 pb-2">
@@ -209,7 +217,7 @@ const onMainScroll = (e) => {
             <div class="px-4 pt-4 pb-6">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-black text-[#5D4037]">推荐关注</h3>
-                <button class="text-xs text-gray-300">显示更多 ›</button>
+                <button class="text-xs text-gray-300 px-2 py-1 rounded-lg hover:bg-gray-50 transition-colors">显示更多 ›</button>
               </div>
               <div class="space-y-3">
               <div v-for="(user, idx) in followUsers" :key="idx" class="flex items-center gap-3 cursor-pointer" @click="goProfile(user.name)">
