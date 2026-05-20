@@ -1,81 +1,278 @@
-###### Goal
+# PPA (Pet Partner App) — 宠物社交平台原型
 
-- 基于Vue 3 SPA完成宠物社交App原型，包含搜索API、用户主页、聊天详情、侧边栏交互，并完善圆角一致性。
-Constraints & Preferences
-- 新增路由：/profile/:name（用户主页）、/chat/:name（聊天详情）。
-- 搜索接入后端API（GET /api/search?q=），Vite代理到 localhost:3001。
-- 搜索页的推荐/热点tab、聊天页tab、通知页tab全部可切换。
-- 底部栏5项（首页/搜索/+发布/发现/聊天），发布按钮居中突出显示（粉色圆形+白色+号，无-mt-4上移）。
-- 底部栏四角圆角（rounded-[28px] + px-3 pb-3浮动）。
-- 所有矩形元素均使用四角圆角（移除ChatDetail单角rounded-br-[4px]/rounded-bl-[4px]）。
-- 多图片网格每张图独立rounded-xl圆角。
-- 侧边栏头像改为圆形（rounded-full）。
+基于 **Vue 3 (Composition API) + Vite + Tailwind CSS** 构建的宠物主题移动端 SPA 原型，模拟手机容器展示，包含社交动态、即时聊天、搜索发现、账号管理等模块，配套 Express 搜索 API 服务。
 
-  ###### Progress
+---
 
-  ###### Done
-- 搜索框功能化：点击展开为真实 <input> + 取消按钮，Enter触发API搜索，结果分帖子/用户/商品/标签四类展示。
-- 创建 server/ 后端：Express + CORS + 模拟数据（帖子/用户/商品/热搜标签），GET /api/search?q= 返回筛选结果，Vite proxy /api → localhost:3001。
-- 新增路由：/profile/:name（Profile.vue）、/chat/:name（ChatDetail.vue）。
-- 创建 Profile.vue：可复用用户主页（头像/简介/粉丝数/帖子数 + 帖子/动态/赞过tab + 发消息/关注按钮）。
-- 创建 ChatDetail.vue：微信风格聊天页（灰色背景、左右气泡对齐、自动回复、底部输入条 + 发送按钮）。
-- 搜索页推荐内容（4条卡片）→ 点击 /detail；用户行（推荐关注 + 搜索结果）→ 点击 Profile。
-- 搜索页「关注」按钮 → 添加至 localStorage ppa_chats + 跳转 ChatDetail。
-- Chat.vue 合并通知：标题栏改为「聊天/通知」双tab切换，通知tab展示5条模拟通知。
-- Chat.vue 搜索改为切换模式，仅过滤当前聊天列表（name + preview）。
-- Chat.vue 聊天项可点击 → 打开 /chat/:name ChatDetail。
-- Chat.vue 初始化合并 defaultChats + localStorage 已关注用户。
-- 移除 Home.vue / Search.vue 独立FAB浮动按钮。
-- 移除BottomNav通知角标和红点，改为5项（home/search/+/social/chat）。
-- 发布按钮居中放大：粉色bg-[#FF85A2]圆形 + <span>+</span>白色大号文字（替换iconify-icon），移除 -mt-4，水平垂直居中。
-- BottomNav改为rounded-[28px]四角圆角 + px-3 pb-3 + 内嵌shadow + border浮动底栏。
-- PostCard多图片网格每张图独立rounded-xl overflow-hidden，单张 col-span-2 全宽。
-- PostCard新增avatar-click emit，Home.vue处理跳转 /profile/:name；头像和昵称均变为可点击。
-- ChatDetail聊天气泡改为 rounded-[18px] 四角圆角，移除单角特殊处理。
-- Home.vue手机容器新增 overflow-hidden（此前缺少导致圆角未裁剪内容）。
-- Profile.vue手机容器改为 overflow-hidden + 内部 <main class="flex-1 overflow-y-auto">。
-- Search.vue「热点」tab展示站内Top 10热帖排行（序号/头像/内容/互动数据/热度值），前3名粉色高亮。
-- Setting.vue页面可交互（待完善具体交互逻辑）。
-- Sidebar.vue头像改为 rounded-full 圆形。
-- Sidebar.vue「我的宠物档案」可点击交互（待完善跳转目标）。
+## 运行环境要求
 
-  ###### In Progress
-- (none)
+| 依赖 | 最低版本 | 说明 |
+|------|----------|------|
+| Node.js | >= 18 | 运行前端构建与后端服务 |
+| npm | >= 9 | 包管理 |
+| 现代浏览器 | Chrome / Edge / Firefox 最新版 | 支持 ES Module 和 CSS Grid |
+| 操作系统 | macOS / Windows / Linux 均可 | 跨平台 |
 
-  ###### Blocked
-- 腾讯地图 API 密钥为占位符（YOUR_TENCENT_MAP_KEY），需替换为真实密钥。
-- 后端API仅含模拟数据，无真实数据库。
-Key Decisions
-- 关注/聊天列表通过 localStorage 存储合并，无需后端即可演示交互流程。
-- 发布按钮使用 <span>+</span> 纯文本代替 iconify-icon，避免图标加载问题。
-- 手机容器统一加 overflow-hidden 确保 rounded-[40px] 正确裁剪内容。
-- 「热点」使用前端静态数据而非API，减少依赖。
-- 搜索API使用模拟数据服务端，通过代理转发，便于后续对接真实数据库。
+---
 
-  ###### Next Steps
-1. 替换腾讯地图 YOUR_TENCENT_MAP_KEY 为真实 API Key。
-2. 对接真实登录/验证码/支付 API。
-3. 可选项：扩展 tailwind.config.js 主题色。
-4. Setting.vue 补充完整交互（修改手机号、设备管理操作等）。
-5. Sidebar「我的宠物档案」跳转目标页面。
-6. 初始本地启动：终端1 cd server && npm start，终端2 npm run dev。
+## 第三方依赖清单
 
-  ###### Critical Context
-- Vite proxy 将 /api 转发到 localhost:3001，需后端运行。
-- localStorage key：ppa_chats（聊天列表）、ppa_draft（草稿）、ppa_new_posts（新帖）。
-- 路由使用 createWebHashHistory，需用 router.push() 导航。
-- iconify-icon 已配置 compilerOptions.isCustomElement。
-- 所有手机容器统一 rounded-[40px] overflow-hidden border-[8px] border-white。
-- build 产出 ~47 modules，JS 215 kB，CSS 33 kB。
-Relevant Files
-- src/views/Search.vue：可点击的推荐/热点tab + 搜索功能 + 用户关注 + Top10热帖排行。
-- src/views/Chat.vue：聊天+通知双tab，搜索仅过滤聊天列表，项可点击→ChatDetail。
-- src/views/ChatDetail.vue：微信风格聊天详情页（气泡双向对齐、自动回复）。
-- src/views/Profile.vue：可复用用户主页（信息+帖子列表+关注/发消息）。
-- src/views/Setting.vue：账号安全页，需完善交互。
-- src/components/BottomNav.vue：5图标底栏（+发布居中突出），四角圆角浮动。
-- src/components/Sidebar.vue：头像改为rounded-full圆形，宠物档案可点击。
-- src/components/PostCard.vue：多图独立rounded-xl圆角，头像/昵称可点击→Profile。
-- server/index.js + server/data.js：搜索API后端（Express + 模拟数据）。
-- vite.config.js：含/api代理配置。
-- src/style.css：.sheet类已用rounded-[32px]全圆角。
+### 前端运行时
+
+| 包名 | 版本 | 类型 | 用途 |
+|------|------|------|------|
+| `vue` | ^3.5.34 | dependency | 前端框架（Composition API, `<script setup>`） |
+| `vue-router` | ^4.6.4 | dependency | 路由管理（Hash 模式） |
+| `iconify-icon` | 2.3.0 | CDN | 图标库（Solar 系列，通过 `<script>` 标签引入） |
+
+### 前端开发/构建工具
+
+| 包名 | 版本 | 类型 | 用途 |
+|------|------|------|------|
+| `vite` | ^8.0.12 | devDependency | 构建工具与开发服务器 |
+| `@vitejs/plugin-vue` | ^6.0.6 | devDependency | Vite Vue 3 插件 |
+| `tailwindcss` | ^3.4.19 | devDependency | CSS 工具类框架 |
+| `postcss` | ^8.5.14 | devDependency | CSS 后处理（Tailwind 依赖） |
+| `autoprefixer` | ^10.5.0 | devDependency | CSS 浏览器前缀自动添加 |
+
+### 后端服务
+
+| 包名 | 版本 | 类型 | 用途 |
+|------|------|------|------|
+| `express` | ^4.21.0 | dependency | HTTP 服务框架 |
+| `cors` | ^2.8.5 | dependency | 跨域资源共享中间件 |
+
+### 在线资源（外部服务）
+
+| 资源 | 用途 | 说明 |
+|------|------|------|
+| picsum.photos | 用户头像占位图 | 在线随机图片服务 |
+| modao.cc | 宠物/帖子示例图片 | AI 生成图片 |
+| 腾讯地图 JavaScript API | 位置页地图展示 | 需替换 `YOUR_TENCENT_MAP_KEY` |
+
+---
+
+## 快速启动
+
+```bash
+# 1. 安装前端依赖
+npm install
+
+# 2. 安装后端依赖
+cd server && npm install && cd ..
+
+# 3. 启动后端 API（终端 1）
+cd server && npm start
+# → http://localhost:3001
+
+# 4. 启动前端开发服务器（终端 2）
+npm run dev
+# → http://localhost:5173
+
+# 5. 构建生产版本
+npm run build
+```
+
+---
+
+## 项目结构
+
+```
+ppa/
+├── index.html                 # 入口 HTML
+├── vite.config.js             # Vite 配置（含 /api 代理）
+├── tailwind.config.js         # Tailwind 配置
+├── postcss.config.js
+├── package.json
+├── server/
+│   ├── index.js               # Express 服务入口（GET /api/search）
+│   ├── data.js                # 模拟数据（帖子/用户/商品/标签）
+│   └── package.json
+└── src/
+    ├── main.js                # 应用入口
+    ├── App.vue                # 根组件（仅 <router-view />）
+    ├── style.css              # 全局样式 + 过渡动画
+    ├── router/
+    │   └── index.js           # 路由定义（Hash 模式）
+    ├── views/
+    │   ├── Auth.vue           # 登录页
+    │   ├── Home.vue           # 首页（动态流）
+    │   ├── Search.vue         # 搜索 + 推荐 + 热点排行
+    │   ├── Social.vue         # 发现（附近的人/群组）
+    │   ├── Chat.vue           # 聊天 + 通知（双 Tab）
+    │   ├── ChatDetail.vue     # 聊天详情（微信风格气泡）
+    │   ├── Profile.vue        # 用户主页
+    │   ├── Detail.vue         # 帖子详情
+    │   ├── PostEdit.vue       # 发布帖子
+    │   ├── Mall.vue           # 商城
+    │   ├── Order.vue          # 订单
+    │   ├── Location.vue       # 位置（腾讯地图占位）
+    │   └── Setting.vue        # 账号安全设置
+    └── components/
+        ├── BottomNav.vue      # 底部导航（5项，+ 发布居中）
+        ├── Sidebar.vue        # 侧边抽屉（用户信息/宠物档案）
+        ├── PostCard.vue       # 帖子卡片（头像点击/多图圆角）
+        └── HelloWorld.vue     # 模板遗留组件
+```
+
+---
+
+## 路由表
+
+| 路径 | 视图 | 说明 |
+|------|------|------|
+| `/` | — | 重定向到 `/auth` |
+| `/auth` | Auth | 登录/注册 |
+| `/home` | Home | 首页动态流 |
+| `/search` | Search | 搜索 + 推荐 + 热点 |
+| `/social` | Social | 发现（附近的人/群组） |
+| `/chat` | Chat | 聊天列表 + 通知 Tab |
+| `/chat/:name` | ChatDetail | 与指定用户的聊天详情 |
+| `/profile/:name` | Profile | 指定用户的个人主页 |
+| `/detail` | Detail | 帖子详情 |
+| `/post-edit` | PostEdit | 发布新帖子 |
+| `/mall` | Mall | 宠物商城 |
+| `/order` | Order | 订单列表 |
+| `/location` | Location | 附近位置（腾讯地图） |
+| `/setting` | Setting | 账号安全设置 |
+
+---
+
+## 组件文档
+
+### BottomNav.vue
+
+底部固定导航栏，5 个入口：首页 / 搜索 / **发布(+)** / 发现 / 聊天。
+
+- 发布按钮居中放大，粉底白字圆形，非 `-mt-4` 上移方案
+- 整体 `rounded-[28px]` 四角圆角 + `border` 浮动效果
+- 当前路由高亮（使用 `router.currentRoute`）
+
+### Sidebar.vue
+
+从左侧滑入的抽屉面板。
+
+- 用户头像圆形 `rounded-full`，点击跳转 `/profile/元宝麻麻`
+- 昵称点击跳转个人主页
+- 「我的宠物档案」展示两个宠物卡片，可点击切换
+- 「添加」按钮跳转 `/post-edit`
+- 蓝底认证徽章使用 `w-5 h-5` 固定尺寸正圆形
+
+### PostCard.vue
+
+首页动态流中的帖子卡片。
+
+- 头像 & 昵称可点击 → `emit('avatar-click', nickname)` → 跳转 `/profile/:name`
+- 多图网格：每张图独立 `rounded-xl overflow-hidden`
+- 单张图片占据 `col-span-2` 全宽
+- 底部显示点赞/评论/浏览数
+
+---
+
+## API 文档
+
+### `GET /api/search?q={keyword}`
+
+搜索接口，由 Express 服务运行在 `localhost:3001`，Vite 开发服务器代理 `/api` 请求。
+
+**请求示例：**
+
+```
+GET /api/search?q=元宝
+```
+
+**响应格式：**
+
+```json
+{
+  "posts": [
+    {
+      "id": 1,
+      "nickname": "元宝麻麻",
+      "avatar": "https://...",
+      "time": "2026.04.28 · 上海",
+      "content": "今天元宝学会了握手！...",
+      "images": ["https://..."],
+      "likes": "1.2k",
+      "comments": "48",
+      "views": "5.6k",
+      "hasBadge": true
+    }
+  ],
+  "users": [
+    { "name": "泡芙麻麻", "desc": "布偶猫日常 ...", "avatar": "https://...", "followers": "12.3w" }
+  ],
+  "products": [
+    { "name": "高钙羊乳肉垫冻干", "price": "29.9", "sales": "2k+", "tag": "自营" }
+  ],
+  "tags": ["猫罐头", "狗粮"]
+}
+```
+
+**搜索逻辑（服务端筛选）：**
+
+| 字段 | 匹配对象 | 匹配字段 |
+|------|----------|----------|
+| `posts` | 帖子数据 | content, nickname |
+| `users` | 用户数据 | name, desc |
+| `products` | 商品数据 | name |
+| `tags` | 热搜标签 | 标签名称 |
+
+返回 4 类结果分别分页；`q` 为空时返回全部空数组。
+
+---
+
+## 数据流 & 存储设计
+
+### localStorage 键
+
+| Key | 用途 | 格式 |
+|-----|------|------|
+| `ppa_chats` | 聊天列表（预置 + 关注用户合并） | `[{name, avatar, preview, time, unread}]` |
+| `ppa_draft` | 发布草稿 | `{content, images}` |
+| `ppa_new_posts` | 新增帖子数据 | `[{content, images, ...}]` |
+
+### 聊天数据流
+
+1. 页面初始化时加载 `defaultChats`（预置聊天项）
+2. 从 localStorage `ppa_chats` 恢复已关注用户
+3. 合并去重后渲染聊天列表
+4. 搜索页点击「关注」→ `localStorage.ppa_chats` 追加 → 跳转 ChatDetail
+
+### 路由策略
+
+- 使用 `createWebHashHistory`，URL 格式为 `/#/path`
+- 组件内导航使用 `router.push('/path')`
+
+---
+
+## 设计约定
+
+| 约定 | 标准值 |
+|------|--------|
+| 手机容器 | `w-[375px] h-[812px] rounded-[40px] overflow-hidden border-[8px] border-white` |
+| 弹窗背景遮罩 | `.overlay` class: `fixed inset-0 bg-black bg-opacity-40` |
+| 底部弹出面板 | `.sheet` class: `rounded-[32px]` 四角圆角 |
+| 矩形元素圆角 | 统一四角圆角（无单角特殊处理） |
+| 卡片阴影 | `.creamy-shadow`: `0 4px 15px rgba(255, 133, 162, 0.15)` |
+| 主色调 | 粉色 `#FF85A2`、深褐 `#5D4037`、浅蓝 `#A7C7E7` |
+
+---
+
+## 已知限制
+
+- 腾讯地图 API Key 为占位符 `YOUR_TENCENT_MAP_KEY`，需替换真实密钥
+- 后端 API 使用静态模拟数据，无真实数据库
+- 搜索接口仅支持单关键词匹配，不支持分页
+- 用户认证为前端模拟，无真实登录验证
+- 图片资源均来自 picsum.photos 和 modao.cc 在线服务
+
+---
+
+## 后续规划
+
+- [ ] 替换腾讯地图 API Key
+- [ ] 对接真实登录/验证码/支付 API
+- [ ] 搜索接口增加分页参数
+- [ ] 扩展 Tailwind 主题色配置
+- [ ] 添加单元测试（Vitest）
