@@ -125,7 +125,7 @@ const onMainScroll = (e) => {
             <button class="shrink-0 text-[10px] text-gray-400 font-medium px-2 py-1 rounded-lg hover:bg-gray-200 transition-colors" @click="exitSearch">取消</button>
           </div>
         </div>
-        <button class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors shrink-0 cursor-pointer" @click="router.push('/setting')">
+        <button class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors shrink-0 cursor-pointer" @click="router.push('/settings')">
           <iconify-icon class="text-gray-400 text-lg" icon="solar:settings-linear"></iconify-icon>
         </button>
       </header>

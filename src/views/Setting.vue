@@ -42,7 +42,7 @@ const doAddAccount = () => {
     <div class="w-[375px] h-[812px] bg-[#FFFDF9] rounded-[40px] shadow-2xl overflow-hidden relative border-[8px] border-white flex flex-col pt-10">
 
       <header class="px-6 pt-6 pb-4 flex items-center gap-4">
-        <button @click="router.push('/home')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-100">
+        <button @click="router.back()" class="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-gray-100">
           <iconify-icon icon="solar:arrow-left-linear"></iconify-icon>
         </button>
         <h1 class="text-xl font-bold text-[#5D4037]">账号安全</h1>
@@ -85,8 +85,8 @@ const doAddAccount = () => {
 
         <div class="bg-white rounded-2xl p-4 creamy-shadow flex items-center justify-between cursor-pointer" @click="showAddAccount = true">
           <span class="text-sm font-bold text-[#5D4037]">新增账号</span>
-          <button class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-            <iconify-icon icon="solar:add-bold" class="text-gray-400"></iconify-icon>
+          <button class="w-8 h-8 rounded-full bg-[#FF85A2] flex items-center justify-center shadow-md shadow-pink-200/40">
+            <iconify-icon icon="solar:add-bold" class="text-white"></iconify-icon>
           </button>
         </div>
       </main>

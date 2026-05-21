@@ -95,24 +95,33 @@ ppa/
     ├── router/
     │   └── index.js           # 路由定义（Hash 模式）
     ├── views/
-    │   ├── Auth.vue           # 登录页
+    │   ├── Auth.vue           # 登录页（支持测试账号 admin/123456）
     │   ├── Home.vue           # 首页（推荐动态流 + 商城 tab：轮播/分类筛选/12商品网格）
     │   ├── Search.vue         # 搜索 + 推荐 + 热点排行
-    │   ├── Social.vue         # 发现（附近的人/群组）
-    │   ├── Chat.vue           # 聊天 + 通知（双 Tab）
+    │   ├── Social.vue         # 发现（附近宠友/专区/互助/你可能认识的朋友）
+    │   ├── Chat.vue           # 聊天 + 通知（双 Tab，支持 ?tab=notif 参数）
     │   ├── ChatDetail.vue     # 聊天详情（微信风格气泡）
     │   ├── Profile.vue        # 用户主页
     │   ├── Detail.vue         # 帖子详情（评论区）
     │   ├── ProductDetail.vue  # 商品详情（图片轮播/参数/评价/加购）
     │   ├── Cart.vue           # 购物车（勾选/数量/结算）
-    │   ├── Payment.vue        # 支付（微信支付/支付宝）
+    │   ├── Payment.vue        # 支付（微信支付/支付宝，写入 localStorage）
     │   ├── PostEdit.vue       # 发布帖子
     │   ├── Order.vue          # 订单详情（支付成功态）
+    │   ├── OrderList.vue      # 订单列表（状态筛选）
+    │   ├── OrderDetail.vue    # 订单详情（从列表进入，关联 userId）
     │   ├── Location.vue       # 位置（腾讯地图占位）
-    │   └── Setting.vue        # 账号安全设置
+    │   ├── Setting.vue        # 账号安全（手机绑定/设备管理/注销）
+    │   ├── Settings.vue       # 设置页（主页风格，含各子设置入口）
+    │   ├── ProfileEdit.vue    # 编辑个人资料
+    │   ├── NotificationSettings.vue # 消息通知设置（开关控制）
+    │   ├── PrivacySettings.vue      # 隐私设置
+    │   ├── HelpFeedback.vue   # 帮助与反馈（FAQ + 意见提交）
+    │   ├── Favorites.vue      # 我的收藏（2 列商品网格）
+    │   └── UserDetail.vue     # 用户详情页
     └── components/
         ├── BottomNav.vue      # 底部导航（5项，滚动方向控制显隐）
-        ├── Sidebar.vue        # 侧边抽屉（用户信息/宠物档案）
+        ├── Sidebar.vue        # 侧边抽屉（用户信息/宠物档案/动态添加切换）
         ├── PostCard.vue       # 帖子卡片（评论/转发浮窗，广告→商品详情）
         └── WalkCard.vue       # 约遛组件（加入/去地图）
 ```
@@ -124,11 +133,11 @@ ppa/
 | 路径 | 视图 | 说明 |
 |------|------|------|
 | `/` | — | 重定向到 `/auth` |
-| `/auth` | Auth | 登录/注册 |
+| `/auth` | Auth | 登录/注册（测试账号 admin/123456） |
 | `/home` | Home | 首页（推荐动态流 + 商城 tab，支持 `?tab=mall` 参数） |
 | `/search` | Search | 搜索 + 推荐 + 热点 |
-| `/social` | Social | 发现（附近的人/群组） |
-| `/chat` | Chat | 聊天列表 + 通知 Tab |
+| `/social` | Social | 发现（附近宠友/专区/互助） |
+| `/chat` | Chat | 聊天列表 + 通知 Tab（支持 `?tab=notif` 参数） |
 | `/chat/:name` | ChatDetail | 与指定用户的聊天详情 |
 | `/profile/:name` | Profile | 指定用户的个人主页 |
 | `/detail` | Detail | 帖子详情（评论区） |
@@ -137,8 +146,17 @@ ppa/
 | `/payment` | Payment | 支付（微信支付/支付宝） |
 | `/post-edit` | PostEdit | 发布新帖子 |
 | `/order` | Order | 订单详情（支付成功态） |
+| `/orders` | OrderList | 订单列表（状态筛选） |
+| `/order-detail/:orderNum` | OrderDetail | 订单详情（从列表进入） |
 | `/location` | Location | 附近位置（腾讯地图） |
 | `/setting` | Setting | 账号安全设置 |
+| `/settings` | Settings | 设置页（主页风格） |
+| `/profile-edit` | ProfileEdit | 编辑个人资料 |
+| `/notification-settings` | NotificationSettings | 消息通知设置 |
+| `/privacy-settings` | PrivacySettings | 隐私设置 |
+| `/help-feedback` | HelpFeedback | 帮助与反馈 |
+| `/favorites` | Favorites | 我的收藏 |
+| `/user` | UserDetail | 用户详情页 |
 
 ---
 
@@ -158,11 +176,12 @@ ppa/
 
 从左侧滑入的抽屉面板。
 
-- 用户头像圆形 `rounded-full`，点击跳转 `/profile/元宝麻麻`
-- 昵称点击跳转个人主页
-- 「我的宠物档案」展示两个宠物卡片，可点击切换
-- 「添加」按钮跳转 `/post-edit`
-- 蓝底认证徽章使用 `w-5 h-5` 固定尺寸正圆形
+- 用户头像及信息区域点击跳转 `/user`
+- 宠物卡片容器支持 `snap-x snap-mandatory` 平滑吸附 + 鼠标拖拽滚动
+- 点击「添加」动态新增宠物卡片
+- 点击「点击切换」将该卡设为当前身份（高亮）
+- 我的订单 → `/orders` | 我的收藏 → `/favorites` | 消息中心 → `/chat?tab=notif` | 账号安全 → `/setting`
+- 「元宝的专属好物」商品点击 → `/product/:id`
 
 ### WalkCard.vue
 
@@ -237,6 +256,7 @@ GET /api/search?q=元宝
 | `ppa_chats` | 聊天列表（预置 + 关注用户合并） | `[{name, avatar, preview, time, unread}]` |
 | `ppa_draft` | 发布草稿 | `{content, images}` |
 | `ppa_new_posts` | 新增帖子数据 | `[{content, images, ...}]` |
+| `ppa_orders` | 订单列表（关联 userId） | `[{userId, orderNum, name, price, status, time, ...}]` |
 | `payTotal` (session) | 支付金额 | `"388.0"` |
 | `cartItems` (session) | 购物车结算商品 | `[{id, name, price, qty, img}]` |
 | `orderInfo` (session) | 订单信息 | `{name, spec, qty, price, total, img, orderNum}` |
@@ -253,8 +273,9 @@ GET /api/search?q=元宝
 1. 商城 tab → 商品网格 / 广告帖点击 → `/product/:id`
 2. ProductDetail「加入购物车」→ 本地计数，「立即购买」→ sessionStorage → `/payment`
 3. Cart 结算 → sessionStorage `cartItems` + `payTotal` → `/payment`
-4. Payment 选择微信/支付宝 → 确认支付（模拟 1.8s）→ sessionStorage `orderInfo` → `/order`
+4. Payment 选择微信/支付宝 → 确认支付（模拟 1.8s）→ 写入 `localStorage.ppa_orders`（关联 userId）→ `/order`
 5. Order 展示支付成功状态 + 订单详情
+6. 侧栏「我的订单」→ `/orders`（状态筛选列表）→ 点击 → `/order-detail/:orderNum`
 
 ### 路由策略
 
@@ -283,8 +304,10 @@ GET /api/search?q=元宝
 - 腾讯地图 API Key 为占位符 `YOUR_TENCENT_MAP_KEY`，需替换真实密钥
 - 后端 API 使用静态模拟数据，无真实数据库
 - 搜索接口仅支持单关键词匹配，不支持分页
-- 用户认证为前端模拟，无真实登录验证
+- 用户认证为前端模拟（admin/123456 预设账号），无真实登录验证
 - 图片资源均来自 picsum.photos 和 modao.cc 在线服务
+- 购物支付为模拟（1.8s 延时），无真实网关对接
+- 订单数据存储在 localStorage，仅模拟当前用户「元宝麻麻」
 
 ---
 
@@ -295,3 +318,4 @@ GET /api/search?q=元宝
 - [ ] 搜索接口增加分页参数
 - [ ] 扩展 Tailwind 主题色配置
 - [ ] 添加单元测试（Vitest）
+- [ ] 订单系统接入真实后端

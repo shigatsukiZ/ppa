@@ -27,6 +27,21 @@ const pay = () => {
       img: 'https://modao.cc/agent-py/media/generated_images/2026-04-28/c1b3faf520804bda89bbdd836711d2d6.jpg',
       orderNum: orderNum,
     }))
+    const orderRecord = {
+      userId: '元宝麻麻',
+      orderNum,
+      name: '元气奶油猫窝限定套餐',
+      spec: payMethod.value === 'wechat' ? '微信支付' : '支付宝支付',
+      qty: 1,
+      price: total.value,
+      total: total.value,
+      img: 'https://modao.cc/agent-py/media/generated_images/2026-04-28/c1b3faf520804bda89bbdd836711d2d6.jpg',
+      status: '待收货',
+      time: new Date().toLocaleString('zh-CN'),
+    }
+    const existing = JSON.parse(localStorage.getItem('ppa_orders') || '[]')
+    existing.unshift(orderRecord)
+    localStorage.setItem('ppa_orders', JSON.stringify(existing))
     setTimeout(() => {
       router.push('/order')
     }, 1200)

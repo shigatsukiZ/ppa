@@ -1,10 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import BottomNav from '../components/BottomNav.vue'
 import Sidebar from '../components/Sidebar.vue'
 
 const router = useRouter()
+const route = useRoute()
 const navHidden = ref(false)
 let lastScrollTopChat = 0
 const showSidebar = ref(false)
@@ -138,7 +139,10 @@ const onScroll = (e) => {
   lastScrollTopChat = st
 }
 
-onMounted(loadChats)
+onMounted(() => {
+  loadChats()
+  if (route.query.tab === 'notif') chatTab.value = 'notif'
+})
 
 const notifications = ref([
   { id: 1, icon: 'solar:heart-bold', iconBg: '#FFE4E1', iconColor: 'text-[#FF85A2]', title: '大白姐姐 赞了你的帖子', time: '2 分钟前' },

@@ -207,7 +207,7 @@ const setChild = (child) => {
               </div>
             </div>
           </div>
-          <button class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors shrink-0 cursor-pointer" @click="router.push('/setting')">
+          <button class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors shrink-0 cursor-pointer" @click="router.push('/settings')">
             <iconify-icon class="text-gray-400 text-lg" icon="solar:settings-linear"></iconify-icon>
           </button>
         </div>

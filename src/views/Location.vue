@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const mapContainer = ref(null)
 const loading = ref(true)
-const userAddr = ref('获取中...')
+const userAddr = ref('环球中心')
 const destAddr = ref('成都锦城公园')
 const distText = ref('')
 const loaded = ref(false)
@@ -24,6 +24,16 @@ let dragZoneBottomY = 0
 let msgIdCounter = 0
 
 const emojis = [...'😀😁😂🤣😃😄😅😆😉😊😋😎😍🥰😘😗😙😚🙂🤗🤩🤔🤨😐😑😶😏😒🙄😬🤥😌😔😪🤤😴😷🤒🤕🤢🤧🥵🥶🥴😵🤯🤠🥳🥺😢😭😤😡🤬😈👿💀☠💩🤡👹👺👻👽👾🤖💋💘❤🧡💛💚💙💜🖤🤍🤎💔❣💕💞💓💗💖💝💟👍👎👊✊🤛🤜🤚👋🤟✌🤞🤟👌✋🤏👆👇👉👈🙌🙏🤝💪🦵🦶👂👃🧠🦷👀👅👄💄💋']
+
+const nearbyUsers = [
+  { name: '大白姐姐', avatar: 'https://modao.cc/agent-py/media/generated_images/2026-04-28/e5aef7fa9bee4ef599275559e228a396.jpg', lat: 30.5780, lng: 104.0620 },
+  { name: '团子爸爸', avatar: 'https://modao.cc/agent-py/media/generated_images/2026-04-28/df1301d0ef594fa7bf45eb0ddec652d6.jpg', lat: 30.5650, lng: 104.0550 },
+  { name: '泡芙麻麻', avatar: 'https://picsum.photos/200?random=1', lat: 30.5750, lng: 104.0500 },
+  { name: '毛球麻麻', avatar: 'https://picsum.photos/200?random=2', lat: 30.5600, lng: 104.0650 },
+  { name: '布丁麻麻', avatar: 'https://picsum.photos/200?random=4', lat: 30.5850, lng: 104.0580 },
+  { name: '七喜麻麻', avatar: 'https://picsum.photos/200?random=5', lat: 30.5680, lng: 104.0700 },
+  { name: '糯米麻麻', avatar: 'https://picsum.photos/200?random=6', lat: 30.5550, lng: 104.0450 },
+]
 
 const insertEmoji = (e) => {
   chatInput.value += e
@@ -114,33 +124,33 @@ onMounted(async () => {
       content: '<div style="color:#5D4037;font-size:11px;font-weight:bold;background:#FFFDF9;border:1px solid #FFD1DC;border-radius:8px;padding:2px 8px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">成都锦城公园</div>'
     })
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const userPt = new maps.LatLng(pos.coords.latitude, pos.coords.longitude)
-          userAddr.value = '已定位'
+    const userPt = new maps.LatLng(30.5702, 104.0614)
 
-          new maps.Marker({ position: userPt, map })
+    new maps.Marker({ position: userPt, map })
 
-            new maps.InfoWindow({
-              map, position: userPt,
-              content: '<div style="color:#A7C7E7;font-size:11px;font-weight:bold;background:#FFFDF9;border:1px solid #A7C7E7;border-radius:8px;padding:2px 8px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">我的位置</div>'
-            })
+    new maps.InfoWindow({
+      map, position: userPt,
+      content: '<div style="color:#A7C7E7;font-size:11px;font-weight:bold;background:#FFFDF9;border:1px solid #A7C7E7;border-radius:8px;padding:2px 8px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">环球中心</div>'
+    })
 
-          const dist = calcDist(
-            { lat: pos.coords.latitude, lng: pos.coords.longitude },
-            { lat: 30.5713, lng: 104.0583 }
-          )
-          distText.value = '距目的地 ' + fmtDist(dist)
-          map.setCenter(userPt)
-          map.setZoom(13)
-        },
-        () => { userAddr.value = '定位失败，使用默认位置' },
-        { enableHighAccuracy: true, timeout: 10000 }
-      )
-    } else {
-      userAddr.value = '浏览器不支持定位'
-    }
+    const dist = calcDist(
+      { lat: 30.5702, lng: 104.0614 },
+      { lat: 30.5713, lng: 104.0583 }
+    )
+    distText.value = '距目的地 ' + fmtDist(dist)
+    map.setCenter(userPt)
+    map.setZoom(13)
+
+    nearbyUsers.forEach(u => {
+      const pt = new maps.LatLng(u.lat, u.lng)
+      const d = calcDist({ lat: 30.5702, lng: 104.0614 }, u)
+      if (d > 5000) return
+      new maps.Marker({ position: pt, map })
+      new maps.InfoWindow({
+        map, position: pt,
+        content: `<div style="display:flex;align-items:center;gap:4px;color:#5D4037;font-size:10px;font-weight:bold;background:#FFFDF9;border:1px solid #FFD1DC;border-radius:12px;padding:3px 8px;max-width:140px"><img src="${u.avatar}" style="width:16px;height:16px;border-radius:50%;object-fit:cover"/><span>${u.name}</span></div>`
+      })
+    })
   } catch {
     // map load failed
   } finally {
