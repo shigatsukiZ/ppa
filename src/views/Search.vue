@@ -49,6 +49,9 @@ const followUsers = ref([
 
 const searchResults = ref(null)
 const searching = ref(false)
+const searchPage = ref(1)
+const loadingMore = ref(false)
+const hasMore = ref(false)
 
 const enterSearch = () => {
   searchMode.value = true
@@ -61,21 +64,39 @@ const exitSearch = () => {
   searchResults.value = null
 }
 
-const doSearch = async () => {
+const doSearch = async (page = 1, append = false) => {
   const q = searchQuery.value.trim()
   if (!q) return
-  searching.value = true
+  if (page === 1) searching.value = true
+  else loadingMore.value = true
   try {
-    const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
+    const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&page=${page}&pageSize=10`)
     const data = await res.json()
-    searchResults.value = data
+    if (append && searchResults.value) {
+      searchResults.value = {
+        ...data,
+        posts: [...searchResults.value.posts, ...data.posts],
+        users: [...searchResults.value.users, ...data.users],
+        products: [...searchResults.value.products, ...data.products],
+        tags: [...searchResults.value.tags, ...data.tags],
+      }
+    } else {
+      searchResults.value = data
+    }
+    searchPage.value = page
+    hasMore.value = data.total > page * 10
     activeTab.value = '热点'
     searchMode.value = false
   } catch {
-    searchResults.value = { posts: [], users: [], products: [], tags: [] }
+    searchResults.value = { posts: [], users: [], products: [], tags: [], total: 0 }
   } finally {
     searching.value = false
+    loadingMore.value = false
   }
+}
+
+const loadMore = () => {
+  if (!loadingMore.value && hasMore.value) doSearch(searchPage.value + 1, true)
 }
 
 const addFollowChat = (user) => {
@@ -181,6 +202,12 @@ const onMainScroll = (e) => {
             <div class="flex flex-wrap gap-2">
               <span v-for="tag in searchResults.tags" :key="tag" class="px-2.5 py-1 rounded-full bg-[#FDF0F3] text-[10px] text-[#FF85A2] font-medium">{{ tag }}</span>
             </div>
+          </div>
+
+          <div v-if="hasMore" class="flex justify-center py-4">
+            <button class="px-6 py-2 rounded-full bg-[#FFF5F7] text-[#FF85A2] text-xs font-bold border border-[#FFD1DC] hover:bg-[#FFE8EE] transition-colors" :disabled="loadingMore" @click="loadMore">
+              {{ loadingMore ? '加载中...' : '加载更多' }}
+            </button>
           </div>
 
           <div v-if="!searchResults.posts.length && !searchResults.users.length && !searchResults.products.length && !searchResults.tags.length" class="flex items-center justify-center h-40 text-xs text-gray-300">

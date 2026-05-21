@@ -8,33 +8,41 @@ app.use(express.json())
 
 app.get('/api/search', (req, res) => {
   const q = (req.query.q || '').trim().toLowerCase()
+  const page = Math.max(1, parseInt(req.query.page) || 1)
+  const pageSize = Math.min(50, Math.max(1, parseInt(req.query.pageSize) || 10))
+
   if (!q) {
-    return res.json({ posts: [], users: [], products: [], tags: [] })
+    return res.json({ posts: [], users: [], products: [], tags: [], page, pageSize, total: 0 })
   }
 
-  const matchedPosts = posts.filter(p =>
+  const matchPosts = posts.filter(p =>
     p.content.toLowerCase().includes(q) ||
     p.nickname.toLowerCase().includes(q)
   )
-
-  const matchedUsers = users.filter(u =>
+  const matchUsers = users.filter(u =>
     u.name.toLowerCase().includes(q) ||
     u.desc.toLowerCase().includes(q)
   )
-
-  const matchedProducts = products.filter(p =>
+  const matchProducts = products.filter(p =>
     p.name.toLowerCase().includes(q)
   )
-
-  const matchedTags = hotTags.filter(t =>
+  const matchTags = hotTags.filter(t =>
     t.toLowerCase().includes(q)
   )
 
+  const paginate = (arr) => {
+    const start = (page - 1) * pageSize
+    return arr.slice(start, start + pageSize)
+  }
+
   res.json({
-    posts: matchedPosts,
-    users: matchedUsers,
-    products: matchedProducts,
-    tags: matchedTags,
+    posts: paginate(matchPosts),
+    users: paginate(matchUsers),
+    products: paginate(matchProducts),
+    tags: paginate(matchTags),
+    page,
+    pageSize,
+    total: matchPosts.length + matchUsers.length + matchProducts.length + matchTags.length,
   })
 })
 

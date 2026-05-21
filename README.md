@@ -34,6 +34,9 @@
 | `tailwindcss` | ^3.4.19 | devDependency | CSS 工具类框架 |
 | `postcss` | ^8.5.14 | devDependency | CSS 后处理（Tailwind 依赖） |
 | `autoprefixer` | ^10.5.0 | devDependency | CSS 浏览器前缀自动添加 |
+| `vitest` | ^4.1.7 | devDependency | 单元测试框架 |
+| `@vue/test-utils` | — | devDependency | Vue 组件测试工具 |
+| `jsdom` | — | devDependency | 浏览器环境模拟 |
 
 ### 后端服务
 
@@ -71,6 +74,10 @@ npm run dev
 
 # 5. 构建生产版本
 npm run build
+
+# 6. 运行单元测试
+npm test
+# npm run test:watch  # 监听模式
 ```
 
 ---
@@ -83,12 +90,16 @@ ppa/
 ├── vite.config.js             # Vite 配置（含 /api 代理）
 ├── tailwind.config.js         # Tailwind 配置
 ├── postcss.config.js
+├── vitest.config.js             # Vitest 配置
 ├── package.json
 ├── server/
-│   ├── index.js               # Express 服务入口（GET /api/search）
+│   ├── index.js               # Express 服务入口（GET /api/search 支持分页）
 │   ├── data.js                # 模拟数据（帖子/用户/商品/标签）
 │   └── package.json
 └── src/
+    ├── __tests__/
+    │   ├── utils.test.js      # 工具函数测试（formatCount/parseCount/paginate/搜索逻辑）
+    │   └── BottomNav.test.js  # 组件测试（渲染/显隐）
     ├── main.js                # 应用入口
     ├── App.vue                # 根组件（仅 <router-view />）
     ├── style.css              # 全局样式 + 过渡动画
@@ -196,14 +207,20 @@ ppa/
 
 ## API 文档
 
-### `GET /api/search?q={keyword}`
+### `GET /api/search?q={keyword}&page={page}&pageSize={pageSize}`
 
 搜索接口，由 Express 服务运行在 `localhost:3001`，Vite 开发服务器代理 `/api` 请求。
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `q` | — | 搜索关键词（必填） |
+| `page` | 1 | 页码，从 1 开始 |
+| `pageSize` | 10 | 每页条数，最大 50 |
 
 **请求示例：**
 
 ```
-GET /api/search?q=元宝
+GET /api/search?q=元宝&page=1&pageSize=10
 ```
 
 **响应格式：**
@@ -243,7 +260,7 @@ GET /api/search?q=元宝
 | `products` | 商品数据 | name |
 | `tags` | 热搜标签 | 标签名称 |
 
-返回 4 类结果分别分页；`q` 为空时返回全部空数组。
+返回 4 类结果分别分页；`q` 为空时返回空数组及 `page`/`pageSize`/`total` 元信息。
 
 ---
 
@@ -303,7 +320,7 @@ GET /api/search?q=元宝
 
 - 腾讯地图 API Key 为占位符 `YOUR_TENCENT_MAP_KEY`，需替换真实密钥
 - 后端 API 使用静态模拟数据，无真实数据库
-- 搜索接口仅支持单关键词匹配，不支持分页
+- 搜索接口支持分页参数（`page` / `pageSize`），默认每页 10 条
 - 用户认证为前端模拟（admin/123456 预设账号），无真实登录验证
 - 图片资源均来自 picsum.photos 和 modao.cc 在线服务
 - 购物支付为模拟（1.8s 延时），无真实网关对接
@@ -315,7 +332,6 @@ GET /api/search?q=元宝
 
 - [ ] 替换腾讯地图 API Key
 - [ ] 对接真实登录/验证码/支付 API
-- [ ] 搜索接口增加分页参数
 - [ ] 扩展 Tailwind 主题色配置
-- [ ] 添加单元测试（Vitest）
+- [ ] 添加更多单元测试（Vitest）—— 现有 19 个测试通过
 - [ ] 订单系统接入真实后端
