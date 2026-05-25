@@ -203,7 +203,7 @@ const stars = (rating) => {
             <iconify-icon class="text-lg" icon="solar:shop-linear"></iconify-icon>
             <span class="text-[9px]">首页</span>
           </button>
-          <button class="flex flex-col items-center text-gray-400 relative" @click="router.push('/home?tab=mall')">
+          <button class="flex flex-col items-center text-gray-400 relative" @click="router.push('/cart')">
             <iconify-icon class="text-lg" icon="solar:cart-large-minimalistic-linear"></iconify-icon>
             <span class="text-[9px]">购物车</span>
             <span v-if="cartCount > 0"

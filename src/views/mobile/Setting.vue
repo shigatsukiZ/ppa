@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import BottomNav from '../components/BottomNav.vue'
+import BottomNav from '../../components/BottomNav.vue'
 
 const router = useRouter()
 const navHidden = ref(false)

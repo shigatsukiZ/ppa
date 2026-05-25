@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import BottomNav from '../components/BottomNav.vue'
-import Sidebar from '../components/Sidebar.vue'
+import BottomNav from '../../components/BottomNav.vue'
+import Sidebar from '../../components/Sidebar.vue'
 
 const router = useRouter()
 const showUpload = ref(false)

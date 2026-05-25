@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import PostCard from '../components/PostCard.vue'
+import PostCard from '../../components/PostCard.vue'
 
 const router = useRouter()
 const activeTab = ref('帖子')

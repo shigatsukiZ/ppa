@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import PostCard from '../components/PostCard.vue'
+import PostCard from '../../components/PostCard.vue'
 
 const route = useRoute()
 const router = useRouter()

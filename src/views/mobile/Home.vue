@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import BottomNav from '../components/BottomNav.vue'
-import Sidebar from '../components/Sidebar.vue'
-import PostCard from '../components/PostCard.vue'
+import BottomNav from '../../components/BottomNav.vue'
+import Sidebar from '../../components/Sidebar.vue'
+import PostCard from '../../components/PostCard.vue'
 
 const route = useRoute()
 const router = useRouter()

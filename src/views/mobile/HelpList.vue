@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import BottomNav from '../components/BottomNav.vue'
+import BottomNav from '../../components/BottomNav.vue'
 
 const route = useRoute()
 const router = useRouter()
